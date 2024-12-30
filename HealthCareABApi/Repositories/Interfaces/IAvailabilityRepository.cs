@@ -6,11 +6,11 @@ namespace HealthCareABApi.Repositories
     public interface IAvailabilityRepository
     {
         Task<IEnumerable<Availability>> GetAllAsync();
-        Task<Availability> GetByIdAsync(string id);
+        Task<Availability> GetByIdAsync(int id);
         Task CreateAsync(Availability availability);
-        Task UpdateAsync(string id, Availability availability);
-        Task DeleteAsync(string id);
-        Task<IEnumerable<Availability>> GetByCaregiverIdAsync(string caregiverId);
+        Task UpdateAsync(int id, Availability availability);
+        Task DeleteAsync(int id);
+        Task<IEnumerable<Availability>> GetByCaregiverIdAsync(int caregiverId);
 
     }
 }

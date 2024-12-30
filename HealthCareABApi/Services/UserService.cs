@@ -1,39 +1,38 @@
 ﻿using System;
-using HealthCareABApi.Configurations;
 using HealthCareABApi.Models;
 using Microsoft.Extensions.Options;
-using MongoDB.Driver;
 using System.Text;
 using System.Security.Cryptography;
 using HealthCareABApi.DTO;
+using HealthCareABApi.Repositories.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace HealthCareABApi.Services
 {
 
     public class UserService
     {
-        private readonly IMongoCollection<User> _users;
+        private readonly HealthCareDbContext _DbContext;
 
-        public UserService(IOptions<MongoDBSettings> mongoDBSettings)
+        public UserService(HealthCareDbContext context)
         {
-            var client = new MongoClient(mongoDBSettings.Value.ConnectionString);
-            var database = client.GetDatabase(mongoDBSettings.Value.DatabaseName);
-            _users = database.GetCollection<User>("Users");
+            _DbContext = context;
         }
 
         public async Task<bool> ExistsByUsernameAsync(string username)
         {
-            return await _users.Find(u => u.Username == username).AnyAsync();
+            return await _DbContext.User.Where(u => u.Username == username).AnyAsync();
         }
 
         public async Task<User> GetUserByUsernameAsync(string username)
         {
-            return await _users.Find(u => u.Username == username).FirstOrDefaultAsync();
+            return await _DbContext.User.Where(u => u.Username == username).FirstOrDefaultAsync();
         }
 
         public async Task CreateUserAsync(User user)
         {
-            await _users.InsertOneAsync(user);
+            await _DbContext.User.AddAsync(user);
+            await _DbContext.SaveChangesAsync();
         }
 
         // Method to hash a plaintext password using BCrypt.

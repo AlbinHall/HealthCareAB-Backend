@@ -1,24 +1,25 @@
-﻿using System;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HealthCareABApi.Models
 {
     public class Feedback
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
+        public int Id { get; set; }
 
         // Reference to Appointment
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string AppointmentId { get; set; }
+        [ForeignKey(nameof(Appointment.Id))]
+        public int AppointmentId { get; set; }
 
         // Reference to Patient (User)
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string PatientId { get; set; }
+        [ForeignKey(nameof(Appointment.Patient))]
+        public User PatientId { get; set; }
+        public required string Comment { get; set; }
 
-        public string Comment { get; set; }
+        [ForeignKey(nameof(AppointmentId))]
+        public virtual Appointment Appointment { get; set; }
     }
 }
 

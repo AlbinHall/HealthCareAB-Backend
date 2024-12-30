@@ -40,7 +40,7 @@ namespace HealthCareABApi.Services
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
 
              // Add the user's ID as a custom claim.
-        new Claim("sub", user.Id) // 'sub' (subject) is commonly used for user IDs in JWTs.
+        new Claim("sub", user.Id.ToString()) // 'sub' (subject) is commonly used for user IDs in JWTs.
         };
 
             // Add claims for each of the user's roles.
