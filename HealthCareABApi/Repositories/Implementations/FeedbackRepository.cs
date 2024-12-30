@@ -1,41 +1,46 @@
 ﻿using System;
 using HealthCareABApi.Models;
-using MongoDB.Driver;
+using HealthCareABApi.Repositories.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace HealthCareABApi.Repositories.Implementations
 {
     public class FeedbackRepository : IFeedbackRepository
     {
-        private readonly IMongoCollection<Feedback> _collection;
+        private readonly HealthCareDbContext _Dbcontext;
 
-        public FeedbackRepository(IMongoDbContext context)
+        public FeedbackRepository(HealthCareDbContext context)
         {
-            _collection = context.Feedbacks;
+            _Dbcontext = context;
         }
 
         public async Task<IEnumerable<Feedback>> GetAllAsync()
         {
-            return await _collection.Find(_ => true).ToListAsync();
+            return await _Dbcontext.Feedback.ToListAsync();
         }
 
-        public async Task<Feedback> GetByIdAsync(string id)
+        public async Task<Feedback> GetByIdAsync(int id)
         {
-            return await _collection.Find(f => f.Id == id).FirstOrDefaultAsync();
+            return await _Dbcontext.Feedback.Where(f => f.Id == id).FirstOrDefaultAsync();
         }
 
         public async Task CreateAsync(Feedback feedback)
         {
-            await _collection.InsertOneAsync(feedback);
+            await _Dbcontext.Feedback.AddAsync(feedback);
+            await _Dbcontext.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(string id, Feedback feedback)
+        public async Task UpdateAsync(int id, Feedback feedback)
         {
-            await _collection.ReplaceOneAsync(f => f.Id == id, feedback);
+            var exist = await _Dbcontext.Feedback.Where(f => f.Id == id).FirstOrDefaultAsync();
+            _Dbcontext.Feedback.Entry(exist).CurrentValues.SetValues(feedback);
+            await _Dbcontext.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(string id)
+        public async Task DeleteAsync(int id)
         {
-            await _collection.DeleteOneAsync(f => f.Id == id);
+            await _Dbcontext.Feedback.Where(f => f.Id == id).ExecuteDeleteAsync();
+            await _Dbcontext.SaveChangesAsync();
         }
     }
 }

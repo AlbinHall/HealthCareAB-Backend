@@ -1,41 +1,46 @@
 ﻿using System;
 using HealthCareABApi.Models;
-using MongoDB.Driver;
+using HealthCareABApi.Repositories.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace HealthCareABApi.Repositories.Implementations
 {
     public class AppointmentRepository : IAppointmentRepository
     {
-        private readonly IMongoCollection<Appointment> _collection;
+        private readonly HealthCareDbContext _Dbcontext;
 
-        public AppointmentRepository(IMongoDbContext context)
+        public AppointmentRepository(HealthCareDbContext context)
         {
-            _collection = context.Appointments;
+            _Dbcontext = context;
         }
 
         public async Task<IEnumerable<Appointment>> GetAllAsync()
         {
-            return await _collection.Find(_ => true).ToListAsync();
+            return await _Dbcontext.Appointment.Include(a => a.Patient).Include(a => a.Caregiver).ToListAsync();
         }
 
-        public async Task<Appointment> GetByIdAsync(string id)
+        public async Task<Appointment> GetByIdAsync(int id)
         {
-            return await _collection.Find(a => a.Id == id).FirstOrDefaultAsync();
+            return await _Dbcontext.Appointment.Where(a => a.Id == id).FirstAsync();
         }
 
         public async Task CreateAsync(Appointment appointment)
         {
-            await _collection.InsertOneAsync(appointment);
+            await _Dbcontext.Appointment.AddAsync(appointment);
+            await _Dbcontext.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(string id, Appointment appointment)
+        public async Task UpdateAsync(int id, Appointment appointment)
         {
-            await _collection.ReplaceOneAsync(a => a.Id == id, appointment);
+            var exist = await _Dbcontext.Appointment.Where(a => a.Id == id).FirstOrDefaultAsync();
+            _Dbcontext.Appointment.Entry(exist).CurrentValues.SetValues(appointment);
+            await _Dbcontext.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(string id)
+        public async Task DeleteAsync(int id)
         {
-            await _collection.DeleteOneAsync(a => a.Id == id);
+            await _Dbcontext.Appointment.Where(a => a.Id == id).ExecuteDeleteAsync();
+            await _Dbcontext.SaveChangesAsync();
         }
     }
 }

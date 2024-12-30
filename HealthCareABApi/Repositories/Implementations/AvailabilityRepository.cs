@@ -1,48 +1,50 @@
 ﻿using System;
 using HealthCareABApi.Models;
-using MongoDB.Driver;
+using HealthCareABApi.Repositories.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace HealthCareABApi.Repositories.Implementations
 {
     public class AvailabilityRepository : IAvailabilityRepository
     {
-        private readonly IMongoCollection<Availability> _collection;
-
-        public AvailabilityRepository(IMongoDbContext context)
+        private readonly HealthCareDbContext _Dbcontext;
+        public AvailabilityRepository(HealthCareDbContext context)
         {
-            _collection = context.Availabilities;
+            _Dbcontext = context;
         }
 
         public async Task<IEnumerable<Availability>> GetAllAsync()
         {
-            return await _collection.Find(_ => true).ToListAsync();
+            return await _Dbcontext.Availability.ToListAsync();
         }
 
-        public async Task<Availability> GetByIdAsync(string id)
+        public async Task<Availability> GetByIdAsync(int id)
         {
-            return await _collection.Find(a => a.Id == id).FirstOrDefaultAsync();
+            return await _Dbcontext.Availability.Include(x => x.Caregiver).Where(a => a.Id == id).FirstOrDefaultAsync();
         }
 
         public async Task CreateAsync(Availability availability)
         {
-            await _collection.InsertOneAsync(availability);
+            await _Dbcontext.Availability.AddAsync(availability);
         }
 
-        public async Task UpdateAsync(string id, Availability availability)
+        public async Task UpdateAsync(int id, Availability availability)
         {
-            await _collection.ReplaceOneAsync(a => a.Id == id, availability);
+            var exist = await _Dbcontext.Availability.Where(a => a.Id == id).FirstOrDefaultAsync();
+            _Dbcontext.Availability.Entry(exist).CurrentValues.SetValues(availability);
+            await _Dbcontext.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(string id)
+        public async Task DeleteAsync(int id)
         {
-            await _collection.DeleteOneAsync(a => a.Id == id);
+            await _Dbcontext.Availability.Where(a => a.Id == id).ExecuteDeleteAsync();
+            await _Dbcontext.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<Availability>> GetByCaregiverIdAsync(string caregiverId)
+        public async Task<IEnumerable<Availability>> GetByCaregiverIdAsync(int caregiverId)
         {
-            return await _collection.Find(a => a.CaregiverId == caregiverId).ToListAsync();
+            return await _Dbcontext.Availability.Include(x => x.Caregiver).Where(a => a.Caregiver.Id == caregiverId).ToListAsync();
         }
-
     }
 }
 

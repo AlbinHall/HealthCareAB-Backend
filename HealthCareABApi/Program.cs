@@ -1,31 +1,29 @@
 ﻿using System.Text;
-using HealthCareABApi.Configurations;
 using HealthCareABApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using HealthCareABApi.Repositories;
 using HealthCareABApi.Repositories.Implementations;
+using HealthCareABApi.Repositories.Data;
+using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure MongoDB settings
-builder.Services.Configure<MongoDBSettings>(
-    builder.Configuration.GetSection("MongoDBSettings"));
-
-// Register MongoDB context
-builder.Services.AddSingleton<IMongoDbContext, MongoDbContext>();
-
+builder.Services.AddDbContext<HealthCareDbContext>(options =>
+           options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 // Register repositories
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IAvailabilityRepository, AvailabilityRepository>();
 builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
 
-// Register custom services
-builder.Services.AddSingleton<UserService>();
-builder.Services.AddSingleton<JwtTokenService>();
-builder.Services.AddScoped<AvailabilityService>();
 
+
+// Register custom services
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<JwtTokenService>();
 
 
 // Add controllers
