@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 25.0.1706.7
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthCareABApi", "HealthCareABApi\HealthCareABApi.csproj", "{6D3EB5F4-6041-4AF7-A216-EF972A78E7E4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthCareAb-Tests", "HealthCareAb-Tests\HealthCareAb-Tests.csproj", "{CC2B75B8-F605-4462-864C-D0E26C0FB98B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{6D3EB5F4-6041-4AF7-A216-EF972A78E7E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D3EB5F4-6041-4AF7-A216-EF972A78E7E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D3EB5F4-6041-4AF7-A216-EF972A78E7E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC2B75B8-F605-4462-864C-D0E26C0FB98B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC2B75B8-F605-4462-864C-D0E26C0FB98B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC2B75B8-F605-4462-864C-D0E26C0FB98B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC2B75B8-F605-4462-864C-D0E26C0FB98B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
