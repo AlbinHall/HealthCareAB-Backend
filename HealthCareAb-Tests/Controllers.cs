@@ -15,14 +15,19 @@ namespace HealthCareABApi.Tests.Controllers
 {
     public class AuthControllerTests
     {
-        private readonly Mock<UserService> _mockUserService;
-        private readonly Mock<JwtTokenService> _mockJwtTokenService;
+        private readonly Mock<IUserService> _mockUserService;
+        private readonly Mock<IJwtTokenService> _mockJwtTokenService; // Use an interface or mockable service
         private readonly AuthController _authController;
 
         public AuthControllerTests()
         {
-            _mockUserService = new Mock<UserService>();
-            _mockJwtTokenService = new Mock<JwtTokenService>();
+            // Mock IUserService
+            _mockUserService = new Mock<IUserService>();
+
+            // Mock IJwtTokenService (ensure JwtTokenService has an interface or abstract class for mocking)
+            _mockJwtTokenService = new Mock<IJwtTokenService>();
+
+            // Pass mocks into the controller
             _authController = new AuthController(_mockUserService.Object, _mockJwtTokenService.Object)
             {
                 ControllerContext = new ControllerContext
@@ -37,7 +42,8 @@ namespace HealthCareABApi.Tests.Controllers
         {
             // Arrange
             var registerDto = new RegisterDto { Username = "existingUser", Password = "password" };
-            _mockUserService.Setup(service => service.ExistsByUsernameAsync(registerDto.Username)).ReturnsAsync(true);
+            _mockUserService.Setup(service => service.ExistsByUsernameAsync(registerDto.Username))
+                            .ReturnsAsync(true);
 
             // Act
             var result = await _authController.Register(registerDto);
@@ -52,8 +58,10 @@ namespace HealthCareABApi.Tests.Controllers
         {
             // Arrange
             var registerDto = new RegisterDto { Username = "newUser", Password = "password" };
-            _mockUserService.Setup(service => service.ExistsByUsernameAsync(registerDto.Username)).ReturnsAsync(false);
-            _mockUserService.Setup(service => service.HashPassword(registerDto.Password)).Returns("hashedPassword");
+            _mockUserService.Setup(service => service.ExistsByUsernameAsync(registerDto.Username))
+                            .ReturnsAsync(false);
+            _mockUserService.Setup(service => service.HashPassword(registerDto.Password))
+                            .Returns("hashedPassword");
 
             // Act
             var result = await _authController.Register(registerDto);
@@ -68,7 +76,8 @@ namespace HealthCareABApi.Tests.Controllers
         {
             // Arrange
             var loginDto = new LoginDto { Username = "user", Password = "wrongPassword" };
-            _mockUserService.Setup(service => service.GetUserByUsernameAsync(loginDto.Username)).ReturnsAsync((User)null);
+            _mockUserService.Setup(service => service.GetUserByUsernameAsync(loginDto.Username))
+                            .ReturnsAsync((User)null);
 
             // Act
             var result = await _authController.Login(loginDto);
@@ -84,9 +93,13 @@ namespace HealthCareABApi.Tests.Controllers
             // Arrange
             var loginDto = new LoginDto { Username = "user", Password = "password" };
             var user = new User { Username = "user", PasswordHash = "hashedPassword", Roles = new List<string> { "User" } };
-            _mockUserService.Setup(service => service.GetUserByUsernameAsync(loginDto.Username)).ReturnsAsync(user);
-            _mockUserService.Setup(service => service.VerifyPassword(loginDto.Password, user.PasswordHash)).Returns(true);
-            _mockJwtTokenService.Setup(service => service.GenerateToken(user)).Returns("jwtToken");
+
+            _mockUserService.Setup(service => service.GetUserByUsernameAsync(loginDto.Username))
+                            .ReturnsAsync(user);
+            _mockUserService.Setup(service => service.VerifyPassword(loginDto.Password, user.PasswordHash))
+                            .Returns(true);
+            _mockJwtTokenService.Setup(service => service.GenerateToken(user))
+                                .Returns("jwtToken");
 
             // Act
             var result = await _authController.Login(loginDto);

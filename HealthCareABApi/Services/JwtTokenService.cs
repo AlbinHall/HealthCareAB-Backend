@@ -8,7 +8,7 @@ using System.Text;
 namespace HealthCareABApi.Services
 {
     // This class is responsible for generating JWT tokens.
-    public class JwtTokenService
+    public class JwtTokenService : IJwtTokenService
     {
         // Private fields to store JWT configuration settings.
         private readonly string _secret;

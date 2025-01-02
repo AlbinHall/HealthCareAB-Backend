@@ -12,10 +12,10 @@ namespace HealthCareABApi.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly UserService _userService;
-        private readonly JwtTokenService _jwtTokenService;
+        private readonly IUserService _userService;
+        private readonly IJwtTokenService _jwtTokenService;
 
-        public AuthController(UserService userService, JwtTokenService jwtTokenService)
+        public AuthController(IUserService userService, IJwtTokenService jwtTokenService)
         {
             _userService = userService;
             _jwtTokenService = jwtTokenService;

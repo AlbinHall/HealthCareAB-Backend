@@ -39,6 +39,5 @@
     <Folder Include="Models\" />
     <Folder Include="DTO\" />
     <Folder Include="Services\" />
-    <Folder Include="Repositories\Interfaces\" />
   </ItemGroup>
 </Project>
