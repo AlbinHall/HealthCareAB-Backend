@@ -25,8 +25,19 @@ namespace HealthCareABApi.Repositories.Implementations
 
         public async Task CreateAsync(Availability availability)
         {
+            var caregiver = await _Dbcontext.User.FindAsync(availability.Caregiver.Id);
+            if (caregiver == null)
+            {
+                throw new Exception("Caregiver not found");
+            }
+
+            availability.Caregiver = caregiver;
+
             await _Dbcontext.Availability.AddAsync(availability);
+            await _Dbcontext.SaveChangesAsync();
         }
+
+
 
         public async Task UpdateAsync(int id, Availability availability)
         {
