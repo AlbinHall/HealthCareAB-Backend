@@ -58,5 +58,62 @@ namespace HealthCareABApi.Controllers
 
             return Ok();
         }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateSchedule(int id, [FromBody] Availability updatedAvailability)
+        {
+            if (updatedAvailability == null || updatedAvailability.AvailableSlots == null)
+            {
+                return BadRequest("Invalid availability.");
+            }
+
+            foreach (var slot in updatedAvailability.AvailableSlots)
+            {
+                if (slot.Kind != DateTimeKind.Utc)
+                {
+                    return BadRequest("Måste vara i UTC format.");
+                }
+            }
+
+            var existingAvailability = await _availabilityRepository.GetByIdAsync(id);
+
+            if (existingAvailability == null)
+            {
+                return NotFound("Availability not found.");
+            }
+
+            existingAvailability.AvailableSlots = updatedAvailability.AvailableSlots;
+
+            await _availabilityRepository.UpdateAsync(id, existingAvailability);
+
+            return Ok();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteSchedule(int id, [FromBody] DateTime slotToRemove)
+        {
+            if (slotToRemove.Kind != DateTimeKind.Utc)
+            {
+                return BadRequest("Måste vara i UTC format.");
+            }
+
+            var existingAvailability = await _availabilityRepository.GetByIdAsync(id);
+
+            if (existingAvailability == null)
+            {
+                return NotFound("Availability not found.");
+            }
+
+            if (!existingAvailability.AvailableSlots.Contains(slotToRemove))
+            {
+                return BadRequest("Slot not found in availability.");
+            }
+
+            existingAvailability.AvailableSlots.Remove(slotToRemove);
+
+            await _availabilityRepository.UpdateAsync(id, existingAvailability);
+
+            return Ok();
+        }
     }
 }
