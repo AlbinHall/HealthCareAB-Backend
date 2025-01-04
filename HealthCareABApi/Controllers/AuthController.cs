@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using HealthCareABApi.DTO;
 using HealthCareABApi.Models;
+using HealthCareABApi.Repositories.Interfaces;
 using HealthCareABApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,11 +15,13 @@ namespace HealthCareABApi.Controllers
     {
         private readonly IUserService _userService;
         private readonly IJwtTokenService _jwtTokenService;
+        private readonly IRoleService _roleService;
 
-        public AuthController(IUserService userService, IJwtTokenService jwtTokenService)
+        public AuthController(IUserService userService, IJwtTokenService jwtTokenService, IRoleService roleService)
         {
             _userService = userService;
             _jwtTokenService = jwtTokenService;
+            _roleService = roleService;
         }
 
         [HttpPost("register")]
@@ -35,10 +38,44 @@ namespace HealthCareABApi.Controllers
             {
                 Username = request.Username,
                 PasswordHash = _userService.HashPassword(request.Password),
-                Roles = request.Roles == null || !request.Roles.Any()
-                    ? new List<string> { "User" }  // Default role
-                    : request.Roles
+                //Roles = request.Roles == null || !request.Roles.Any()
+                //    ? new List<string> { "User" }  // Default role
+                //    : request.Roles
             };
+
+            var userRoles = new List<UserRole>();
+
+            if (request.Roles == null || !request.Roles.Any())
+            {
+                var userRole = new UserRole
+                {
+                    User = user,
+                    Role = await _roleService.GetRoleByNameAsync(Roles.User),
+                };
+                userRoles.Add(userRole);
+            }
+            else
+            {
+                foreach (var roleName in request.Roles)
+                {
+                    var role = await _roleService.GetRoleByNameAsync(roleName);
+                    if (role != null)
+                    {
+                        var userRole = new UserRole
+                        {
+                            User = user,
+                            Role = role
+                        };
+                        userRoles.Add(userRole);
+                    }
+                    else
+                    {
+                        return BadRequest($"Role {roleName} not found");
+                    }
+                }
+            }
+
+            user.Roles = userRoles;
 
             await _userService.CreateUserAsync(user);
 
@@ -47,7 +84,7 @@ namespace HealthCareABApi.Controllers
             {
                 message = "User registered successfully",
                 username = user.Username,
-                roles = user.Roles
+                roles = userRoles.Select(ur => ur.Role.Name)
             };
 
             return Ok(regResponse);
@@ -89,7 +126,7 @@ namespace HealthCareABApi.Controllers
                 {
                     message = "Login successful",
                     username = user.Username,
-                    roles = user.Roles,
+                    roles = user.Roles.Select(r => r.Role.Name).ToList(),
                     userId = user.Id
                 };
 
