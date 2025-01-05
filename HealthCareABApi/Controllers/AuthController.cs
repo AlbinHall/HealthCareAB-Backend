@@ -38,6 +38,7 @@ namespace HealthCareABApi.Controllers
             {
                 Username = request.Username,
                 PasswordHash = _userService.HashPassword(request.Password),
+                //Old code
                 //Roles = request.Roles == null || !request.Roles.Any()
                 //    ? new List<string> { "User" }  // Default role
                 //    : request.Roles
