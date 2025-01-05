@@ -49,7 +49,10 @@ namespace HealthCareABApi.Services
 
             try
             {
-                return await _dbContext.User.FirstOrDefaultAsync(u => u.Username == username);
+                return await _dbContext.User
+                    .Include(u => u.Roles)
+                    .ThenInclude(ur => ur.Role)
+                    .FirstOrDefaultAsync(u => u.Username == username);
             }
             catch (Exception ex)
             {

@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Linq;
 
 namespace HealthCareABApi.Services
 {
@@ -45,7 +46,14 @@ namespace HealthCareABApi.Services
 
             // Add claims for each of the user's roles.
             // This allows role-based access control by embedding roles in the JWT token.
-            claims.AddRange(user.Roles.Select(role => new Claim(ClaimTypes.Role, role)));
+            if (user.Roles != null)
+            {
+                claims.AddRange(user.Roles.Select(userRole => new Claim(ClaimTypes.Role, userRole.Role.Name)));
+            }
+            else
+            {
+                throw new Exception("User has no roles assigned");
+            }
 
             // Create a security key from the secret, encoded as UTF-8.
             // This key is used to sign the token, ensuring its authenticity.
