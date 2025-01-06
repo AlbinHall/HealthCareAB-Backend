@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using HealthCareABApi.Controllers;
 using HealthCareABApi.DTO;
 using HealthCareABApi.Models;
+using HealthCareABApi.Repositories.Interfaces;
 using HealthCareABApi.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,7 @@ namespace HealthCareABApi.Tests.Controllers
     {
         private readonly Mock<IUserService> _mockUserService;
         private readonly Mock<IJwtTokenService> _mockJwtTokenService; // Use an interface or mockable service
+        private readonly Mock<IRoleService> _mockRoleService;
         private readonly AuthController _authController;
 
         public AuthControllerTests()
@@ -27,8 +29,10 @@ namespace HealthCareABApi.Tests.Controllers
             // Mock IJwtTokenService (ensure JwtTokenService has an interface or abstract class for mocking)
             _mockJwtTokenService = new Mock<IJwtTokenService>();
 
+            _mockRoleService = new Mock<IRoleService>();
+
             // Pass mocks into the controller
-            _authController = new AuthController(_mockUserService.Object, _mockJwtTokenService.Object)
+            _authController = new AuthController(_mockUserService.Object, _mockJwtTokenService.Object, _mockRoleService.Object)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -92,7 +96,19 @@ namespace HealthCareABApi.Tests.Controllers
         {
             // Arrange
             var loginDto = new LoginDto { Username = "user", Password = "password" };
-            var user = new User { Username = "user", PasswordHash = "hashedPassword", Roles = new List<string> { "User" } };
+
+            var user = new User
+            {
+                Username = "user",
+                PasswordHash = "hashedPassword",
+                Roles = new List<UserRole>
+                {
+                    new UserRole
+                    {
+                        Role = new Role { Name = Roles.User}
+                    }
+                }
+            };
 
             _mockUserService.Setup(service => service.GetUserByUsernameAsync(loginDto.Username))
                             .ReturnsAsync(user);
