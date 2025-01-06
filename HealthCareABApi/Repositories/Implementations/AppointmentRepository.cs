@@ -26,8 +26,24 @@ namespace HealthCareABApi.Repositories.Implementations
 
         public async Task CreateAsync(Appointment appointment)
         {
-            await _Dbcontext.Appointment.AddAsync(appointment);
-            await _Dbcontext.SaveChangesAsync();
+            if (appointment == null)
+            {
+                throw new ArgumentNullException(nameof(appointment), "Appointment is null and will blow up the system in 3........2........1.........");
+            }
+
+            try
+            {
+                await _Dbcontext.Appointment.AddAsync(appointment);
+                await _Dbcontext.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new InvalidOperationException("Database error while creating appointment", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Error creating new appointment", ex);
+            }
         }
 
         public async Task UpdateAsync(int id, Appointment appointment)

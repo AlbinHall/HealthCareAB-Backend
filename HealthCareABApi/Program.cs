@@ -17,6 +17,7 @@ builder.Services.AddDbContext<HealthCareDbContext>(options =>
            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 // Register repositories
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IAvailabilityRepository, AvailabilityRepository>();
 
 builder.Services.AddScoped<IAvailabilityService, CaretakerAvailabilityService>();
