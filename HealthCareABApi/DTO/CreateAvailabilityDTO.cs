@@ -1,10 +1,9 @@
-﻿using System;
-namespace HealthCareABApi.DTO
+﻿namespace HealthCareABApi.DTO
 {
     public class CreateAvailabilityDTO
     {
-        public Guid CaregiverId { get; set; }
-        public List<DateTime> AvailableSlots { get; set; }
+        public int CaregiverId { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
     }
 }
-
