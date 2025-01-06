@@ -7,7 +7,7 @@ using System.Security.Claims;
 
 namespace HealthCareABApi.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.Admin)]
     [ApiController]
     [Route("api/[Controller]")]
     public class AvailabilityController : ControllerBase
