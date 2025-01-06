@@ -94,19 +94,16 @@ namespace HealthCareABApi.Controllers
                     return NotFound("Caregiver not found.");
                 }
 
-                // Retrieve the existing availability entity
                 var existingAvailability = await _availabilityRepository.GetByIdAsync(id);
                 if (existingAvailability == null)
                 {
                     return NotFound("Availability not found.");
                 }
 
-                // Update properties
                 existingAvailability.StartTime = availabilityDto.StartTime;
                 existingAvailability.EndTime = availabilityDto.EndTime;
                 existingAvailability.IsAvailable = true;
 
-                // Save changes
                 await _availabilityRepository.UpdateAsync(id, existingAvailability);
 
                 return Ok(new { Message = "Availability updated successfully." });
