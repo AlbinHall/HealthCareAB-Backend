@@ -1,4 +1,5 @@
-﻿using HealthCareABApi.Models;
+﻿using HealthCareABApi.DTO;
+using HealthCareABApi.Models;
 using HealthCareABApi.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -45,7 +46,15 @@ namespace HealthCareABApi.Controllers
                     return NotFound("No Journal Found For This User");
                 }
 
-                return Ok(appointment);
+                var journalDto = new JournalDTO
+                {
+                    Id = appointment.Id,
+                    PatientName = appointment.Patient?.Username ?? "Unknown",
+                    CaregiverName = appointment.Caregiver?.Username ?? "Unknown",
+                    DateTime = appointment.DateTime
+                };
+
+                return Ok(journalDto);
             }
             catch (Exception ex)
             {

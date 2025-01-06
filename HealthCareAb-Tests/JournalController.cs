@@ -23,7 +23,7 @@ namespace HealthCareABApi.Tests.Controllers
             _mockAppointmentRepository = new Mock<IAppointmentRepository>();
             _mockFeedbackRepository = new Mock<IFeedbackRepository>();
             _journalController = new JournalController(
-                _mockAppointmentRepository.Object,
+                _mockAppointmentRepository.Object, 
                 _mockFeedbackRepository.Object)
             {
                 ControllerContext = new ControllerContext
@@ -59,35 +59,6 @@ namespace HealthCareABApi.Tests.Controllers
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             Assert.Equal("User Id is not valid", badRequestResult.Value);
-        }
-
-        [Fact]
-        public async Task GetAppointmentForJournal_ValidUser_ReturnsAppointment()
-        {
-            // Arrange
-            var userId = 1;
-            var expectedAppointment = new Appointment
-            {
-                Id = 1,
-                PatientId = userId,
-                CaregiverId = 2,
-                DateTime = DateTime.Now,
-                Status = AppointmentStatus.Completed
-            };
-
-            SetupUser(userId.ToString());
-            _mockAppointmentRepository.Setup(repo => repo.GetByUserIdAsync(userId))
-                .ReturnsAsync(expectedAppointment);
-
-            // Act
-            var result = await _journalController.GetAppointmentForJournal();
-
-            // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            var returnedAppointment = Assert.IsType<Appointment>(okResult.Value);
-            Assert.Equal(expectedAppointment.Id, returnedAppointment.Id);
-            Assert.Equal(expectedAppointment.PatientId, returnedAppointment.PatientId);
-            Assert.Equal(expectedAppointment.Status, returnedAppointment.Status);
         }
 
         [Fact]

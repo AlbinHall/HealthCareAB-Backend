@@ -26,7 +26,8 @@ namespace HealthCareABApi.Repositories.Implementations
 
         public async Task<Appointment> GetByUserIdAsync(int userid)
         {
-            return await _Dbcontext.Appointment.Where(x => x.PatientId == userid && x.Status == AppointmentStatus.Completed).FirstOrDefaultAsync();
+            return await _Dbcontext.Appointment.Include(x => x.Caregiver).Include(x => x.Patient)
+                .Where(x => x.PatientId == userid && x.Status == AppointmentStatus.Completed).FirstOrDefaultAsync();
         }
 
         public async Task CreateAsync(Appointment appointment)
