@@ -11,6 +11,7 @@ namespace HealthCareABApi.Models
         public int AppointmentId { get; set; }
         public required string Comment { get; set; }
         public virtual Appointment Appointment { get; set; }
+        public int Rating { get; set; }
     }
 }
 
