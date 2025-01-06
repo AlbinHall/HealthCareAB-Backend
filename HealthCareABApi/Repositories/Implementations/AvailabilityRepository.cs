@@ -1,6 +1,8 @@
 ﻿using System;
+using HealthCareABApi.DTO;
 using HealthCareABApi.Models;
 using HealthCareABApi.Repositories.Data;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace HealthCareABApi.Repositories.Implementations
@@ -13,9 +15,24 @@ namespace HealthCareABApi.Repositories.Implementations
             _Dbcontext = context;
         }
 
-        public async Task<IEnumerable<Availability>> GetAllAsync()
+        public async Task<IEnumerable<AvailableSlotsDTO>> GetAllAsync()
         {
-            return await _Dbcontext.Availability.ToListAsync();
+            try
+            {
+                return await _Dbcontext.Availability
+                    .Include(a => a.Caregiver)
+                    .Select(a => new AvailableSlotsDTO
+                    {
+                        CaregiverId = a.Caregiver.Id,
+                        StartTime = a.StartTime,
+                        EndTime = a.EndTime
+                    })
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Error accessing data from database: {ex.Message}");
+            }
         }
 
         public async Task<Availability> GetByIdAsync(int id)

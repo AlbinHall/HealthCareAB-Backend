@@ -18,6 +18,9 @@ builder.Services.AddDbContext<HealthCareDbContext>(options =>
 // Register repositories
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IAvailabilityRepository, AvailabilityRepository>();
+
+builder.Services.AddScoped<IAvailabilityService, CaretakerAvailabilityService>();
+
 builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IRoleService, RoleService>();
