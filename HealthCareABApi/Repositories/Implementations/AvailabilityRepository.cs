@@ -37,7 +37,16 @@ namespace HealthCareABApi.Repositories.Implementations
             await _Dbcontext.SaveChangesAsync();
         }
 
+        public async Task<User> GetCaregiverByIdAsync(int caregiverId)
+        {
+            var caregiver = await _Dbcontext.User.FirstOrDefaultAsync(u => u.Id == caregiverId);
+            if (caregiver == null)
+            {
+                throw new Exception("Caregiver not found");
+            }
+            return caregiver;
 
+        }
 
         public async Task UpdateAsync(int id, Availability availability)
         {

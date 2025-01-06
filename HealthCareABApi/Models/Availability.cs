@@ -1,7 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-
-namespace HealthCareABApi.Models
+﻿namespace HealthCareABApi.Models
 {
     public class Availability
     {
@@ -12,4 +9,3 @@ namespace HealthCareABApi.Models
         public bool IsAvailable { get; set; }
     }
 }
-
