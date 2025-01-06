@@ -36,6 +36,5 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Configurations\" />
-    <Folder Include="DTO\" />
   </ItemGroup>
 </Project>
