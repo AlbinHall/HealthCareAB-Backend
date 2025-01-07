@@ -6,7 +6,13 @@ namespace HealthCareABApi.DTO
     {
         public int PatientId { get; set; }
         public int CaregiverId { get; set; }
-        public DateTime AppointmentCreatedAt { get; set; }
+        public DateTime AppointmentTime { get; set; }
         public AppointmentStatus Status { get; set; }
+    }
+
+    public class DetailedResponseDTO : AppointmentResponseDTO
+    {
+        public string PatientName { get; set; }
+        public string CaregiverName { get; set; }
     }
 }

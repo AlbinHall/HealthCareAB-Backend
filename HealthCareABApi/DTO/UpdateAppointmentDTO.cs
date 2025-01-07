@@ -2,10 +2,11 @@
 
 namespace HealthCareABApi.DTO
 {
-    public class CreateAppointmentDTO
+    public class UpdateAppointmentDTO
     {
-        public int PatientId { get; set; }
         public int CaregiverId { get; set; }
         public DateTime AppointmentTime { get; set; }
+        public AppointmentStatus Status { get; set; }
     }
+
 }
