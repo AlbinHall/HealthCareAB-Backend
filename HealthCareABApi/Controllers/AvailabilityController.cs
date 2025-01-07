@@ -50,8 +50,8 @@ namespace HealthCareABApi.Controllers
                 var availability = new Availability
                 {
                     Caregiver = caregiver,
-                    StartTime = availabilityDto.StartTime,
-                    EndTime = availabilityDto.EndTime,
+                    StartTime = availabilityDto.StartTime.ToLocalTime(),
+                    EndTime = availabilityDto.EndTime.ToLocalTime(),
                     IsAvailable = true
                 };
 
