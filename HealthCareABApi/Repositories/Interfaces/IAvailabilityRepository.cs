@@ -12,7 +12,7 @@ namespace HealthCareABApi.Repositories
         Task UpdateAsync(int id, Availability availability);
         Task DeleteAsync(int id);
         Task<IEnumerable<Availability>> GetByCaregiverIdAsync(int caregiverId);
-
+        Task<User> GetCaregiverByIdAsync(int caregiverId);
     }
 }
 

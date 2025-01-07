@@ -10,6 +10,7 @@ namespace HealthCareABApi.Repositories
         Task CreateAsync(Appointment appointment);
         Task UpdateAsync(int id, Appointment appointment);
         Task DeleteAsync(int id);
+        Task<Appointment> GetByUserIdAsync(int userId);
     }
 }
 
