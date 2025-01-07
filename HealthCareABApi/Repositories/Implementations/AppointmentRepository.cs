@@ -16,7 +16,10 @@ namespace HealthCareABApi.Repositories.Implementations
 
         public async Task<IEnumerable<Appointment>> GetAllAsync()
         {
-            return await _Dbcontext.Appointment.Include(a => a.Patient).Include(a => a.Caregiver).ToListAsync();
+            return await _Dbcontext.Appointment
+                .Include(a => a.Patient)
+                .Include(a => a.Caregiver)
+                .ToListAsync();
         }
 
         public async Task<Appointment> GetByIdAsync(int id)
@@ -24,10 +27,13 @@ namespace HealthCareABApi.Repositories.Implementations
             return await _Dbcontext.Appointment.Where(a => a.Id == id).FirstAsync();
         }
 
-        public async Task<Appointment> GetByUserIdAsync(int userid)
+        public async Task<Appointment> GetByUserIdAsync(int patientId)
         {
-            return await _Dbcontext.Appointment.Include(x => x.Caregiver).Include(x => x.Patient)
-                .Where(x => x.PatientId == userid && x.Status == AppointmentStatus.Completed).FirstOrDefaultAsync();
+            return await _Dbcontext.Appointment
+                .Include(x => x.Caregiver)
+                .Include(x => x.Patient)
+                .Where(x => x.PatientId == patientId && x.Status == AppointmentStatus.Completed)
+                .FirstOrDefaultAsync();
         }
 
         public async Task CreateAsync(Appointment appointment)
@@ -52,17 +58,35 @@ namespace HealthCareABApi.Repositories.Implementations
             }
         }
 
-        public async Task UpdateAsync(int id, Appointment appointment)
+        public async Task<bool> UpdateAsync(int id, Appointment appointment)
         {
             var exist = await _Dbcontext.Appointment.Where(a => a.Id == id).FirstOrDefaultAsync();
+
+            if (exist == null)
+            {
+                return false;
+            }
+
             _Dbcontext.Appointment.Entry(exist).CurrentValues.SetValues(appointment);
             await _Dbcontext.SaveChangesAsync();
+            return true;
         }
 
         public async Task DeleteAsync(int id)
         {
-            await _Dbcontext.Appointment.Where(a => a.Id == id).ExecuteDeleteAsync();
-            await _Dbcontext.SaveChangesAsync();
+            try
+            {
+                await _Dbcontext.Appointment.Where(a => a.Id == id).ExecuteDeleteAsync();
+                await _Dbcontext.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new InvalidOperationException("Database error while deleting appointment", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Error deleting appointment", ex);
+            }
         }
     }
 }

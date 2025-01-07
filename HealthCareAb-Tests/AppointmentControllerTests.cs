@@ -28,14 +28,14 @@ namespace HealthCareAb_Tests
             {
                 PatientId = 1,
                 CaregiverId = 2,
-                DateTime = DateTime.Now.AddHours(1)
+                AppointmentTime = DateTime.Now.AddHours(1)
             };
 
             var appointmentResponseDTO = new AppointmentResponseDTO
             {
                 PatientId = 1,
                 CaregiverId = 2,
-                AppointmentCreatedAt = DateTime.Now.AddHours(1),
+                AppointmentTime = DateTime.Now.AddHours(1),
                 Status = AppointmentStatus.Scheduled
             };
 
@@ -73,8 +73,8 @@ namespace HealthCareAb_Tests
             var createAppointmentDTO = new CreateAppointmentDTO
             {
                 PatientId = 1,
-                CaregiverId = 2,
-                DateTime = DateTime.Now.AddHours(1)
+                CaregiverId = 4,
+                AppointmentTime = DateTime.Now.AddHours(1)
             };
 
             _mockService.Setup(service => service.CreateAsync(createAppointmentDTO)).ThrowsAsync(new Exception("Error creating appointment"));
@@ -83,8 +83,200 @@ namespace HealthCareAb_Tests
             var result = await _controller.CreateAppointment(createAppointmentDTO);
 
             // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("Error processing POST method at api/createappointment", badRequestResult.Value);
+            var objectResult = Assert.IsType<ObjectResult>(result);
+            Assert.Equal(500, objectResult.StatusCode);
+            Assert.Equal("Error processing POST method at api/createappointment", objectResult.Value);
+        }
+
+        [Fact]
+        public async Task GetAllAppointments_ReturnsOkWithAppointments()
+        {
+            // Arrange
+            var appointments = new List<GetAllAppointmentsDTO>
+    {
+        new GetAllAppointmentsDTO
+        {
+            Id = 1,
+            PatientName = "Patient1",
+            CaregiverName = "Caregiver1",
+            AppointmentTime = DateTime.Now.AddHours(1),
+            Status = AppointmentStatus.Scheduled
+        },
+        new GetAllAppointmentsDTO
+        {
+            Id = 2,
+            PatientName = "Patient2",
+            CaregiverName = "Caregiver2",
+            AppointmentTime = DateTime.Now.AddHours(2),
+            Status = AppointmentStatus.Completed
+        }
+    };
+
+            _mockService.Setup(service => service.GetAllAsync()).ReturnsAsync(appointments);
+
+            // Act
+            var result = await _controller.GetAllAppointments();
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var returnedAppointments = Assert.IsType<List<GetAllAppointmentsDTO>>(okResult.Value);
+            Assert.Equal(2, returnedAppointments.Count);
+        }
+
+        [Fact]
+        public async Task GetAllAppointments_ReturnsInternalServerErrorOnException()
+        {
+            // Arrange
+            _mockService.Setup(service => service.GetAllAsync()).ThrowsAsync(new Exception("Error fetching appointments"));
+
+            // Act
+            var result = await _controller.GetAllAppointments();
+
+            // Assert
+            var objectResult = Assert.IsType<ObjectResult>(result);
+            Assert.Equal(500, objectResult.StatusCode);
+            Assert.Equal("Error processing GET method at api/getallappointments", objectResult.Value);
+        }
+
+        [Fact]
+        public async Task GetAppointmentById_ReturnsOkWithAppointment()
+        {
+            // Arrange
+            var appointment = new Appointment
+            {
+                Id = 1,
+                PatientId = 1,
+                CaregiverId = 2,
+                DateTime = DateTime.Now.AddHours(1),
+                Status = AppointmentStatus.Scheduled
+            };
+
+            _mockService.Setup(service => service.GetByIdAsync(1)).ReturnsAsync(appointment);
+
+            // Act
+            var result = await _controller.GetAppointmentById(1);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var returnedAppointment = Assert.IsType<Appointment>(okResult.Value);
+            Assert.Equal(1, returnedAppointment.Id);
+        }
+
+        [Fact]
+        public async Task GetAppointmentById_ReturnsNotFoundWhenAppointmentDoesNotExist()
+        {
+            // Arrange
+            _mockService.Setup(service => service.GetByIdAsync(1)).ThrowsAsync(new KeyNotFoundException());
+
+            // Act
+            var result = await _controller.GetAppointmentById(1);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task DeleteAppointment_ReturnsNoContent()
+        {
+            // Arrange
+            _mockService.Setup(service => service.DeleteAsync(1)).Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _controller.DeleteAppointment(1);
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+        }
+
+        [Fact]
+        public async Task DeleteAppointment_ReturnsNotFoundWhenAppointmentDoesNotExist()
+        {
+            // Arrange
+            _mockService.Setup(service => service.DeleteAsync(1)).ThrowsAsync(new KeyNotFoundException());
+
+            // Act
+            var result = await _controller.DeleteAppointment(1);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task UpdateAppointment_ReturnsNoContent()
+        {
+            // Arrange
+            var updateAppointmentDTO = new UpdateAppointmentDTO
+            {
+                CaregiverId = 2,
+                AppointmentTime = DateTime.Now.AddHours(1),
+                Status = AppointmentStatus.Completed
+            };
+
+            _mockService.Setup(service => service.UpdateAsync(1, updateAppointmentDTO)).Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _controller.UpdateAppointment(1, updateAppointmentDTO);
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+        }
+
+        [Fact]
+        public async Task UpdateAppointment_ReturnsNotFoundWhenAppointmentDoesNotExist()
+        {
+            // Arrange
+            var updateAppointmentDTO = new UpdateAppointmentDTO
+            {
+                CaregiverId = 2,
+                AppointmentTime = DateTime.Now.AddHours(1),
+                Status = AppointmentStatus.Completed
+            };
+
+            _mockService.Setup(service => service.UpdateAsync(1, updateAppointmentDTO)).ThrowsAsync(new KeyNotFoundException());
+
+            // Act
+            var result = await _controller.UpdateAppointment(1, updateAppointmentDTO);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task GetAppointmentByPatientId_ReturnsOkWithAppointment()
+        {
+            // Arrange
+            var detailedResponseDTO = new DetailedResponseDTO
+            {
+                PatientId = 1,
+                PatientName = "Patient1",
+                CaregiverId = 2,
+                CaregiverName = "Caregiver1",
+                AppointmentTime = DateTime.Now.AddHours(1),
+                Status = AppointmentStatus.Scheduled
+            };
+
+            _mockService.Setup(service => service.GetByUserIdAsync(1)).ReturnsAsync(detailedResponseDTO);
+
+            // Act
+            var result = await _controller.GetByUserId(1);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var returnedAppointment = Assert.IsType<DetailedResponseDTO>(okResult.Value);
+            Assert.Equal(1, returnedAppointment.PatientId);
+        }
+
+        [Fact]
+        public async Task GetAppointmentByPatientId_ReturnsNotFoundWhenAppointmentDoesNotExist()
+        {
+            // Arrange
+            _mockService.Setup(service => service.GetByUserIdAsync(1)).ThrowsAsync(new KeyNotFoundException());
+
+            // Act
+            var result = await _controller.GetByUserId(1);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
         }
     }
 
@@ -107,7 +299,7 @@ namespace HealthCareAb_Tests
             {
                 PatientId = 1,
                 CaregiverId = 2,
-                DateTime = DateTime.Now.AddHours(1)
+                AppointmentTime = DateTime.Now.AddHours(1)
             };
 
             var appointment = new Appointment
@@ -122,7 +314,7 @@ namespace HealthCareAb_Tests
             {
                 PatientId = 1,
                 CaregiverId = 2,
-                AppointmentCreatedAt = DateTime.Now.AddHours(1),
+                AppointmentTime = DateTime.Now.AddHours(1),
                 Status = AppointmentStatus.Scheduled
             };
 
@@ -145,7 +337,7 @@ namespace HealthCareAb_Tests
             {
                 PatientId = 1,
                 CaregiverId = 2,
-                DateTime = DateTime.Now.AddHours(1)
+                AppointmentTime = DateTime.Now.AddHours(1)
             };
 
             _mockRepository.Setup(repo => repo.CreateAsync(It.IsAny<Appointment>())).ThrowsAsync(new InvalidOperationException("Error creating new appointment"));
