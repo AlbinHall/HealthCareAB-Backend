@@ -12,12 +12,12 @@ namespace HealthCareAb_Tests
     public class AppointmentControllerTests
     {
         private readonly Mock<IAppointmentService> _mockService;
-        private readonly AppoitmentController _controller;
+        private readonly AppointmentController _controller;
 
         public AppointmentControllerTests()
         {
             _mockService = new Mock<IAppointmentService>();
-            _controller = new AppoitmentController(_mockService.Object);
+            _controller = new AppointmentController(_mockService.Object);
         }
 
         [Fact]
@@ -245,7 +245,6 @@ namespace HealthCareAb_Tests
         public async Task GetAppointmentByPatientId_ReturnsOkWithAppointment()
         {
             // Arrange
-
             var detailedResponseDTOList = new List<DetailedResponseDTO>
             {
                 new DetailedResponseDTO
