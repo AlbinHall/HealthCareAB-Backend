@@ -67,8 +67,7 @@ namespace HealthCareABApi.Tests.Controllers
             // Arrange
             var userId = 1;
             SetupUser(userId.ToString());
-            _mockAppointmentRepository.Setup(repo => repo.GetByUserIdAsync(userId))
-                .ReturnsAsync((Appointment)null);
+            _mockAppointmentRepository.Setup(repo => repo.GetByUserIdAsync(userId)).ReturnsAsync((List<Appointment>)null);
 
             // Act
             var result = await _journalController.GetAppointmentForJournal();
