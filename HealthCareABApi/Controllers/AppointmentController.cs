@@ -8,11 +8,11 @@ namespace HealthCareABApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AppoitmentController : ControllerBase
+    public class AppointmentController : ControllerBase
     {
         private readonly IAppointmentService _appointmentService;
 
-        public AppoitmentController(IAppointmentService appointmentService)
+        public AppointmentController(IAppointmentService appointmentService)
         {
             _appointmentService = appointmentService;
         }
@@ -111,13 +111,13 @@ namespace HealthCareABApi.Controllers
             }
         }
 
-        [HttpGet("getappointmentbypatientid/{patientId}")]
+        [HttpGet("getappointmentsbypatientid/{patientId}")]
         public async Task<IActionResult> GetByUserId(int patientId)
         {
             try
             {
-                var appointment = await _appointmentService.GetByUserIdAsync(patientId);
-                return Ok(appointment);
+                var appointments = await _appointmentService.GetByUserIdAsync(patientId);
+                return Ok(appointments);
             }
             catch (KeyNotFoundException)
             {

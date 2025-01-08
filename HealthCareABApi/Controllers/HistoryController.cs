@@ -10,18 +10,18 @@ namespace HealthCareABApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class JournalController : ControllerBase
+    public class HistoryController : ControllerBase
     {
         private readonly IAppointmentRepository _AppointmentRepository;
-        
-        public JournalController(IAppointmentRepository appointmentRepository, IFeedbackRepository feedbackRepository)
+
+        public HistoryController(IAppointmentRepository appointmentRepository, IFeedbackRepository feedbackRepository)
         {
             _AppointmentRepository = appointmentRepository;
         }
 
         [Authorize(Roles = Roles.User)]
-        [HttpGet("journal")]
-        public async Task<IActionResult> GetAppointmentForJournal()
+        [HttpGet("getHistory")]
+        public async Task<IActionResult> GetAppointmentsForHistory()
         {
             try
             {
@@ -39,22 +39,29 @@ namespace HealthCareABApi.Controllers
                     return BadRequest("User Id is not valid");
                 }
 
-                var appointment = await _AppointmentRepository.GetByUserIdAsync(userId);
-                
-                if (appointment == null)
+                var appointments = await _AppointmentRepository.GetByUserIdAsync(userId);
+
+                if (appointments == null)
                 {
-                    return NotFound("No Journal Found For This User");
+                    return NotFound("No History Found For This User");
                 }
 
-                var journalDto = new JournalDTO
-                {
-                    Id = appointment.Id,
-                    PatientName = appointment.Patient?.Username ?? "Unknown",
-                    CaregiverName = appointment.Caregiver?.Username ?? "Unknown",
-                    DateTime = appointment.DateTime
-                };
+                List<HistoryDTO> HistoryDTOList = new();
 
-                return Ok(journalDto);
+                foreach (var appointment in appointments)
+                {
+                    HistoryDTOList.Add(
+                        new HistoryDTO
+                        {
+                            Id = appointment.Id,
+                            PatientName = appointment.Patient?.Username ?? "Unknown",
+                            CaregiverName = appointment.Caregiver?.Username ?? "Unknown",
+                            DateTime = appointment.DateTime
+                        }
+                    );
+                }
+
+                return Ok(HistoryDTOList);
             }
             catch (Exception ex)
             {

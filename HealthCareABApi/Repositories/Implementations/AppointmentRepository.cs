@@ -27,13 +27,13 @@ namespace HealthCareABApi.Repositories.Implementations
             return await _Dbcontext.Appointment.Where(a => a.Id == id).FirstAsync();
         }
 
-        public async Task<Appointment> GetByUserIdAsync(int patientId)
+        public async Task<IEnumerable<Appointment>> GetByUserIdAsync(int patientId)
         {
             return await _Dbcontext.Appointment
                 .Include(x => x.Caregiver)
                 .Include(x => x.Patient)
                 .Where(x => x.PatientId == patientId && x.Status == AppointmentStatus.Completed)
-                .FirstOrDefaultAsync();
+                .ToListAsync();
         }
 
         public async Task CreateAsync(Appointment appointment)

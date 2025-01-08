@@ -12,12 +12,12 @@ namespace HealthCareAb_Tests
     public class AppointmentControllerTests
     {
         private readonly Mock<IAppointmentService> _mockService;
-        private readonly AppoitmentController _controller;
+        private readonly AppointmentController _controller;
 
         public AppointmentControllerTests()
         {
             _mockService = new Mock<IAppointmentService>();
-            _controller = new AppoitmentController(_mockService.Object);
+            _controller = new AppointmentController(_mockService.Object);
         }
 
         [Fact]
@@ -245,25 +245,28 @@ namespace HealthCareAb_Tests
         public async Task GetAppointmentByPatientId_ReturnsOkWithAppointment()
         {
             // Arrange
-            var detailedResponseDTO = new DetailedResponseDTO
+            var detailedResponseDTOList = new List<DetailedResponseDTO>
             {
+                new DetailedResponseDTO
+                {
                 PatientId = 1,
                 PatientName = "Patient1",
                 CaregiverId = 2,
                 CaregiverName = "Caregiver1",
                 AppointmentTime = DateTime.Now.AddHours(1),
                 Status = AppointmentStatus.Scheduled
+                }
             };
 
-            _mockService.Setup(service => service.GetByUserIdAsync(1)).ReturnsAsync(detailedResponseDTO);
+            _mockService.Setup(service => service.GetByUserIdAsync(1)).ReturnsAsync(detailedResponseDTOList);
 
             // Act
             var result = await _controller.GetByUserId(1);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
-            var returnedAppointment = Assert.IsType<DetailedResponseDTO>(okResult.Value);
-            Assert.Equal(1, returnedAppointment.PatientId);
+            var returnedAppointment = Assert.IsType<List<DetailedResponseDTO>>(okResult.Value);
+            Assert.Equal(1, returnedAppointment[0].PatientId);
         }
 
         [Fact]
