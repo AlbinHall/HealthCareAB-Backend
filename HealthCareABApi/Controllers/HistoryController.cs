@@ -10,18 +10,18 @@ namespace HealthCareABApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class JournalController : ControllerBase
+    public class HistoryController : ControllerBase
     {
         private readonly IAppointmentRepository _AppointmentRepository;
 
-        public JournalController(IAppointmentRepository appointmentRepository, IFeedbackRepository feedbackRepository)
+        public HistoryController(IAppointmentRepository appointmentRepository, IFeedbackRepository feedbackRepository)
         {
             _AppointmentRepository = appointmentRepository;
         }
 
         [Authorize(Roles = Roles.User)]
-        [HttpGet("journal")]
-        public async Task<IActionResult> GetAppointmentForJournal()
+        [HttpGet("getHistory")]
+        public async Task<IActionResult> GetAppointmentsForHistory()
         {
             try
             {
@@ -43,15 +43,15 @@ namespace HealthCareABApi.Controllers
 
                 if (appointments == null)
                 {
-                    return NotFound("No Journal Found For This User");
+                    return NotFound("No History Found For This User");
                 }
 
-                List<JournalDTO> JournalDTOList = new();
+                List<HistoryDTO> HistoryDTOList = new();
 
                 foreach (var appointment in appointments)
                 {
-                    JournalDTOList.Add(
-                        new JournalDTO
+                    HistoryDTOList.Add(
+                        new HistoryDTO
                         {
                             Id = appointment.Id,
                             PatientName = appointment.Patient?.Username ?? "Unknown",
@@ -61,7 +61,7 @@ namespace HealthCareABApi.Controllers
                     );
                 }
 
-                return Ok(JournalDTOList);
+                return Ok(HistoryDTOList);
             }
             catch (Exception ex)
             {

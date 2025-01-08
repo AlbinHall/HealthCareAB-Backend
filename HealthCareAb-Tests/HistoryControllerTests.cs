@@ -12,17 +12,17 @@ using Xunit;
 
 namespace HealthCareABApi.Tests.Controllers
 {
-    public class JournalControllerTests
+    public class HistoryControllerTests
     {
         private readonly Mock<IAppointmentRepository> _mockAppointmentRepository;
         private readonly Mock<IFeedbackRepository> _mockFeedbackRepository;
-        private readonly JournalController _journalController;
+        private readonly HistoryController _historyController;
 
-        public JournalControllerTests()
+        public HistoryControllerTests()
         {
             _mockAppointmentRepository = new Mock<IAppointmentRepository>();
             _mockFeedbackRepository = new Mock<IFeedbackRepository>();
-            _journalController = new JournalController(
+            _historyController = new HistoryController(
                 _mockAppointmentRepository.Object, 
                 _mockFeedbackRepository.Object)
             {
@@ -34,13 +34,13 @@ namespace HealthCareABApi.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetAppointmentForJournal_NoUserClaim_ReturnsUnauthorized()
+        public async Task GetAppointmentForHistory_NoUserClaim_ReturnsUnauthorized()
         {
             // Arrange
             SetupUser(null);
 
             // Act
-            var result = await _journalController.GetAppointmentForJournal();
+            var result = await _historyController.GetAppointmentsForHistory();
 
             // Assert
             var unauthorizedResult = Assert.IsType<UnauthorizedObjectResult>(result);
@@ -48,13 +48,13 @@ namespace HealthCareABApi.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetAppointmentForJournal_InvalidUserId_ReturnsBadRequest()
+        public async Task GetAppointmentForHistory_InvalidUserId_ReturnsBadRequest()
         {
             // Arrange
             SetupUser("not-a-number");
 
             // Act
-            var result = await _journalController.GetAppointmentForJournal();
+            var result = await _historyController.GetAppointmentsForHistory();
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -62,7 +62,7 @@ namespace HealthCareABApi.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetAppointmentForJournal_NoAppointmentFound_ReturnsNotFound()
+        public async Task GetAppointmentForHistory_NoAppointmentFound_ReturnsNotFound()
         {
             // Arrange
             var userId = 1;
@@ -70,15 +70,15 @@ namespace HealthCareABApi.Tests.Controllers
             _mockAppointmentRepository.Setup(repo => repo.GetByUserIdAsync(userId)).ReturnsAsync((List<Appointment>)null);
 
             // Act
-            var result = await _journalController.GetAppointmentForJournal();
+            var result = await _historyController.GetAppointmentsForHistory();
 
             // Assert
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
-            Assert.Equal("No Journal Found For This User", notFoundResult.Value);
+            Assert.Equal("No History Found For This User", notFoundResult.Value);
         }
 
         [Fact]
-        public async Task GetAppointmentForJournal_ThrowsException_Returns500()
+        public async Task GetAppointmentForHistory_ThrowsException_Returns500()
         {
             // Arrange
             var userId = 1;
@@ -87,7 +87,7 @@ namespace HealthCareABApi.Tests.Controllers
                 .ThrowsAsync(new Exception());
 
             // Act
-            var result = await _journalController.GetAppointmentForJournal();
+            var result = await _historyController.GetAppointmentsForHistory();
 
             // Assert
             var statusCodeResult = Assert.IsType<ObjectResult>(result);
@@ -105,7 +105,7 @@ namespace HealthCareABApi.Tests.Controllers
             }
             var identity = new ClaimsIdentity(claims, "TestAuth");
             var claimsPrincipal = new ClaimsPrincipal(identity);
-            _journalController.ControllerContext.HttpContext.User = claimsPrincipal;
+            _historyController.ControllerContext.HttpContext.User = claimsPrincipal;
         }
     }
 }

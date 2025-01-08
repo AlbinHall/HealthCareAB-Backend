@@ -2,7 +2,7 @@
 
 namespace HealthCareABApi.DTO
 {
-    public class JournalDTO
+    public class HistoryDTO
     {
         public int Id { get; set; }
         public string PatientName { get; set; }
