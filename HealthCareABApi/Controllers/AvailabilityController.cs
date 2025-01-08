@@ -4,6 +4,7 @@ using HealthCareABApi.Models;
 using HealthCareABApi.DTO;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using HealthCareABApi.Repositories.Interfaces;
 
 namespace HealthCareABApi.Controllers
 {
@@ -13,19 +14,56 @@ namespace HealthCareABApi.Controllers
     public class AvailabilityController : ControllerBase
     {
         private readonly IAvailabilityRepository _availabilityRepository;
+        private readonly IAvailabilityService _availabilityService;
 
-        public AvailabilityController(IAvailabilityRepository availabilityRepository)
+        public AvailabilityController(IAvailabilityRepository availabilityRepository, IAvailabilityService availabilityService)
         {
             _availabilityRepository = availabilityRepository;
+            _availabilityService = availabilityService;
         }
 
-        [HttpPost]
+        [HttpGet("getavailableslots")]
+        public async Task<IActionResult> GetAvailableSlots()
+        {
+            try
+            {
+                var availableTime = await _availabilityService.GetAllAsync();
+                return Ok(availableTime);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("{caregiverId}")]
+        public async Task<IActionResult> GetAvailabilitiesByCaregiverId(int caregiverId)
+        {
+            try
+            {
+                var availabilities = await _availabilityService.GetByCaregiverIdAsync(caregiverId);
+
+                if (availabilities == null || !availabilities.Any())
+                {
+                    return NotFound("No availabilities found for the specified caregiver.");
+                }
+
+                return Ok(availabilities);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = ex.Message });
+            }
+        }
+
+        [HttpPost("CreateAvailibility")]
         public async Task<IActionResult> CreateAvailability([FromBody] CreateAvailabilityDTO availabilityDto)
         {
             if (availabilityDto.StartTime >= availabilityDto.EndTime)
             {
                 return BadRequest("StartTime must be earlier than EndTime.");
             }
+
             try
             {
                 var caregiverClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
@@ -50,21 +88,18 @@ namespace HealthCareABApi.Controllers
                 var availability = new Availability
                 {
                     Caregiver = caregiver,
-                    StartTime = availabilityDto.StartTime,
-                    EndTime = availabilityDto.EndTime,
-                    IsAvailable = true
+                    StartTime = availabilityDto.StartTime.ToLocalTime(),
+                    EndTime = availabilityDto.EndTime.ToLocalTime(),
                 };
 
-                await _availabilityRepository.CreateAsync(availability);
+                await _availabilityService.CreateAsync(availability);
                 return Ok(new { Message = "Availability created successfully." });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { Error = ex.Message });
-
             }
         }
-
         [HttpPut]
         public async Task<IActionResult> UpdateAvailability(int id, [FromBody] CreateAvailabilityDTO availabilityDto)
         {
@@ -102,7 +137,6 @@ namespace HealthCareABApi.Controllers
 
                 existingAvailability.StartTime = availabilityDto.StartTime;
                 existingAvailability.EndTime = availabilityDto.EndTime;
-                existingAvailability.IsAvailable = true;
 
                 await _availabilityRepository.UpdateAsync(id, existingAvailability);
 
@@ -113,8 +147,6 @@ namespace HealthCareABApi.Controllers
                 return StatusCode(500, new { Error = ex.Message });
             }
         }
-
-
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAvailability(int id)
         {

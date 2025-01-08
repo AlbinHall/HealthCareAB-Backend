@@ -6,6 +6,7 @@ using HealthCareABApi.Controllers;
 using HealthCareABApi.DTO;
 using HealthCareABApi.Models;
 using HealthCareABApi.Repositories;
+using HealthCareABApi.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -16,12 +17,14 @@ namespace HealthCareAb_Tests
     public class AvailabilityControllerTests
     {
         private readonly Mock<IAvailabilityRepository> _mockRepository;
+        private readonly Mock<IAvailabilityService> _mockService;
         private readonly AvailabilityController _controller;
 
         public AvailabilityControllerTests()
         {
             _mockRepository = new Mock<IAvailabilityRepository>();
-            _controller = new AvailabilityController(_mockRepository.Object);
+            _mockService = new Mock<IAvailabilityService>();
+            _controller = new AvailabilityController(_mockRepository.Object, _mockService.Object);
 
             // Mock the User claims
             var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
@@ -101,7 +104,7 @@ namespace HealthCareAb_Tests
                 Caregiver = new User { Id = 1, Username = "Abbe", PasswordHash = "123" },
                 StartTime = DateTime.Now,
                 EndTime = DateTime.Now.AddHours(1),
-                IsAvailable = true
+                IsBooked = false
             };
 
             // Mock the repository methods
@@ -178,6 +181,55 @@ namespace HealthCareAb_Tests
             Assert.NotNull(errorProperty); // Ensure the property exists
             var errorValue = errorProperty.GetValue(statusCodeResult.Value) as string;
             Assert.Equal("Availability not found.", errorValue);
+        }
+
+        [Fact]
+        public async Task GetAvailableSlots_ReturnsOkWithSlots()
+        {
+            // Arrange
+            var slots = new List<AvailableSlotsDTO>
+        {
+            new AvailableSlotsDTO { CaregiverId = 1, StartTime = DateTime.Now, EndTime = DateTime.Now.AddMinutes(30) },
+            new AvailableSlotsDTO { CaregiverId = 2, StartTime = DateTime.Now.AddHours(1), EndTime = DateTime.Now.AddHours(2) }
+        };
+
+            _mockService.Setup(service => service.GetAllAsync()).ReturnsAsync(slots);
+
+            // Act
+            var result = await _controller.GetAvailableSlots();
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var returnSlots = Assert.IsType<List<AvailableSlotsDTO>>(okResult.Value);
+            Assert.Equal(2, returnSlots.Count);
+        }
+
+        [Fact]
+        public async Task GetAvailableSlots_ReturnsBadRequestIfNoSlots()
+        {
+            // Arrange
+            _mockService.Setup(service => service.GetAllAsync()).ThrowsAsync(new Exception("No available slots found."));
+
+            // Act
+            var result = await _controller.GetAvailableSlots();
+
+            // Assert
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal("No available slots found.", badRequestResult.Value);
+        }
+
+        [Fact]
+        public async Task GetAvailableSlots_ReturnsBadRequestOnException()
+        {
+            // Arrange
+            _mockService.Setup(service => service.GetAllAsync()).ThrowsAsync(new Exception("Unexpected error."));
+
+            // Act
+            var result = await _controller.GetAvailableSlots();
+
+            // Assert
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal("Unexpected error.", badRequestResult.Value);
         }
     }
 }
