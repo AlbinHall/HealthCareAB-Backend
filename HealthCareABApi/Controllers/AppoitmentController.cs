@@ -116,8 +116,8 @@ namespace HealthCareABApi.Controllers
         {
             try
             {
-                var appointment = await _appointmentService.GetByUserIdAsync(patientId);
-                return Ok(appointment);
+                var appointments = await _appointmentService.GetByUserIdAsync(patientId);
+                return Ok(appointments);
             }
             catch (KeyNotFoundException)
             {

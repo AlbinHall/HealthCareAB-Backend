@@ -13,7 +13,7 @@ namespace HealthCareABApi.Controllers
     public class JournalController : ControllerBase
     {
         private readonly IAppointmentRepository _AppointmentRepository;
-        
+
         public JournalController(IAppointmentRepository appointmentRepository, IFeedbackRepository feedbackRepository)
         {
             _AppointmentRepository = appointmentRepository;
@@ -39,22 +39,29 @@ namespace HealthCareABApi.Controllers
                     return BadRequest("User Id is not valid");
                 }
 
-                var appointment = await _AppointmentRepository.GetByUserIdAsync(userId);
-                
-                if (appointment == null)
+                var appointments = await _AppointmentRepository.GetByUserIdAsync(userId);
+
+                if (appointments == null)
                 {
                     return NotFound("No Journal Found For This User");
                 }
 
-                var journalDto = new JournalDTO
-                {
-                    Id = appointment.Id,
-                    PatientName = appointment.Patient?.Username ?? "Unknown",
-                    CaregiverName = appointment.Caregiver?.Username ?? "Unknown",
-                    DateTime = appointment.DateTime
-                };
+                List<JournalDTO> JournalDTOList = new();
 
-                return Ok(journalDto);
+                foreach (var appointment in appointments)
+                {
+                    JournalDTOList.Add(
+                        new JournalDTO
+                        {
+                            Id = appointment.Id,
+                            PatientName = appointment.Patient?.Username ?? "Unknown",
+                            CaregiverName = appointment.Caregiver?.Username ?? "Unknown",
+                            DateTime = appointment.DateTime
+                        }
+                    );
+                }
+
+                return Ok(JournalDTOList);
             }
             catch (Exception ex)
             {

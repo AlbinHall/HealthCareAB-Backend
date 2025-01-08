@@ -100,24 +100,34 @@ namespace HealthCareABApi.Services
             return appointment;
         }
 
-        public async Task<DetailedResponseDTO> GetByUserIdAsync(int patientId)
+        public async Task<IEnumerable<DetailedResponseDTO>> GetByUserIdAsync(int patientId)
         {
-            var appointment = await _appointmentRepository.GetByUserIdAsync(patientId);
+            var appointments = await _appointmentRepository.GetByUserIdAsync(patientId);
 
-            if (appointment == null)
+            if (appointments == null)
             {
                 throw new KeyNotFoundException("No (completed) appointment for this patient.");
             }
 
-            return new DetailedResponseDTO
+            List<DetailedResponseDTO> DetailedResponses = new();
+
+            foreach (var appointment in appointments)
             {
-                PatientId = patientId,
-                PatientName = appointment.Patient.Username, // Add name prop later maybe
-                CaregiverId = appointment.CaregiverId,
-                CaregiverName = appointment.Caregiver.Username,
-                AppointmentTime = appointment.DateTime,
-                Status = appointment.Status,
-            };
+                DetailedResponses.Add(
+                    new DetailedResponseDTO
+                    {
+                        Id = appointment.Id,
+                        PatientId = patientId,
+                        PatientName = appointment.Patient.Username, // Add name prop later maybe
+                        CaregiverId = appointment.CaregiverId,
+                        CaregiverName = appointment.Caregiver.Username,
+                        AppointmentTime = appointment.DateTime,
+                        Status = appointment.Status,
+                    }
+                );
+            }
+
+            return DetailedResponses;
         }
 
         public async Task UpdateAsync(int id, UpdateAppointmentDTO dto)

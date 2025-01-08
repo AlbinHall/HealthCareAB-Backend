@@ -9,7 +9,7 @@ namespace HealthCareABApi.Repositories.Interfaces
         Task<Appointment> GetByIdAsync(int id);
         Task UpdateAsync(int id, UpdateAppointmentDTO dto);
         Task DeleteAsync(int id);
-        Task<DetailedResponseDTO> GetByUserIdAsync(int patientId);
+        Task<IEnumerable<DetailedResponseDTO>> GetByUserIdAsync(int patientId);
         Task<IEnumerable<GetAllAppointmentsDTO>> GetAllAsync();
     }
 }

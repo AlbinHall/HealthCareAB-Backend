@@ -12,6 +12,7 @@ namespace HealthCareABApi.DTO
 
     public class DetailedResponseDTO : AppointmentResponseDTO
     {
+        public int Id { get; set; }
         public string PatientName { get; set; }
         public string CaregiverName { get; set; }
     }
