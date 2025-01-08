@@ -7,8 +7,10 @@ namespace HealthCareABApi.Models
     {
         public int Id { get; set; }
         public int PatientId { get; set; }
+        [DeleteBehavior(DeleteBehavior.NoAction)]
         public virtual User Patient { get; set; }
         public int CaregiverId { get; set; }
+        [DeleteBehavior(DeleteBehavior.NoAction)]
         public virtual User Caregiver { get; set; }
         public DateTime DateTime { get; set; }
         public AppointmentStatus Status { get; set; }
