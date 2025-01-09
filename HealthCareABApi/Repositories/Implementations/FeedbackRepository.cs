@@ -29,6 +29,11 @@ namespace HealthCareABApi.Repositories.Implementations
             return await _Dbcontext.Feedback.Where(f => f.AppointmentId == id).FirstOrDefaultAsync();
         }
 
+        public async Task<IEnumerable<Feedback>> GetByPatientIdAsync(int id)
+        {
+            return await _Dbcontext.Feedback.Include(f => f.Appointment).Where(f => f.Appointment.PatientId == id).ToListAsync();
+        }
+
         public async Task CreateAsync(Feedback feedback)
         {
             await _Dbcontext.Feedback.AddAsync(feedback);
