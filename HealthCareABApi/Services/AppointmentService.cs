@@ -27,7 +27,7 @@ namespace HealthCareABApi.Services
                 {
                     PatientId = dto.PatientId,
                     CaregiverId = dto.CaregiverId,
-                    DateTime = dto.AppointmentTime,
+                    DateTime = dto.AppointmentTime.ToLocalTime(),
                     Status = AppointmentStatus.Scheduled
                 };
 
@@ -90,15 +90,15 @@ namespace HealthCareABApi.Services
 
         public async Task<Appointment> GetByIdAsync(int id)
         {
-            var appointment = await _appointmentRepository.GetByIdAsync(id);
+                var appointment = await _appointmentRepository.GetByIdAsync(id);
 
-            if (appointment == null)
-            {
-                throw new KeyNotFoundException("Appointment not found.");
-            }
+                if (appointment == null)
+                {
+                    throw new KeyNotFoundException("Appointment not found.");
+                }
 
             return appointment;
-        }
+                }
 
         public async Task<IEnumerable<DetailedResponseDTO>> GetByUserIdAsync(int patientId)
         {
@@ -115,14 +115,14 @@ namespace HealthCareABApi.Services
             {
                 DetailedResponses.Add(
                     new DetailedResponseDTO
-                    {
-                        Id = appointment.Id,
+                {
+                    Id = appointment.Id,
                         PatientId = patientId,
                         PatientName = appointment.Patient.Username, // Add name prop later maybe
-                        CaregiverId = appointment.CaregiverId,
+                    CaregiverId = appointment.CaregiverId,
                         CaregiverName = appointment.Caregiver.Username,
                         AppointmentTime = appointment.DateTime,
-                        Status = appointment.Status,
+                    Status = appointment.Status,
                     }
                 );
             }
