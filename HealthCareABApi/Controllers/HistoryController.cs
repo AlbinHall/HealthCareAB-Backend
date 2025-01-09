@@ -13,10 +13,12 @@ namespace HealthCareABApi.Controllers
     public class HistoryController : ControllerBase
     {
         private readonly IAppointmentRepository _AppointmentRepository;
+        private readonly IFeedbackRepository _FeedbackRepository;
 
         public HistoryController(IAppointmentRepository appointmentRepository, IFeedbackRepository feedbackRepository)
         {
             _AppointmentRepository = appointmentRepository;
+            _FeedbackRepository = feedbackRepository;
         }
 
         [Authorize(Roles = Roles.User)]
@@ -46,6 +48,9 @@ namespace HealthCareABApi.Controllers
                     return NotFound("No History Found For This User");
                 }
 
+                //Retrive feedbacks to check if appointment has feedback
+                var feedbacks = await _FeedbackRepository.GetByPatientIdAsync(userId);
+
                 List<HistoryDTO> HistoryDTOList = new();
 
                 foreach (var appointment in appointments)
@@ -56,7 +61,8 @@ namespace HealthCareABApi.Controllers
                             Id = appointment.Id,
                             PatientName = appointment.Patient?.Username ?? "Unknown",
                             CaregiverName = appointment.Caregiver?.Username ?? "Unknown",
-                            DateTime = appointment.DateTime
+                            DateTime = appointment.DateTime,
+                            HasFeedback = feedbacks.Any(f => f.AppointmentId == appointment.Id)
                         }
                     );
                 }
