@@ -30,6 +30,10 @@ namespace HealthCareABApi.Controllers
                 var createdAppointment = await _appointmentService.CreateAsync(createAppointmentDTO);
                 return Ok(createdAppointment);
             }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest("No availability was found for this caregiver");
+            }
             catch (Exception)
             {
                 return StatusCode(500, "Error processing POST method at api/createappointment");

@@ -45,8 +45,26 @@ namespace HealthCareABApi.Repositories.Implementations
 
             try
             {
+                var availability = await _Dbcontext.Availability
+                .FirstOrDefaultAsync(a =>
+                    a.Caregiver.Id == appointment.CaregiverId &&
+                    a.StartTime <= appointment.DateTime &&
+                    a.EndTime > appointment.DateTime &&
+                    !a.IsBooked);
+
+                if (availability == null)
+                {
+                    throw new InvalidOperationException("No available slot for this time.");
+                }
+
+                availability.IsBooked = true;
+                availability.Appointment = appointment;
+
                 await _Dbcontext.Appointment.AddAsync(appointment);
+
                 await _Dbcontext.SaveChangesAsync();
+                //await _Dbcontext.Appointment.AddAsync(appointment);
+                //await _Dbcontext.SaveChangesAsync();
             }
             catch (DbUpdateException ex)
             {
