@@ -64,7 +64,7 @@ namespace HealthCareABApi.Services
                     EndTime = slot.EndTime,
                     CaregiverId = slot.Caregiver.Id,
                     IsBooked = slot.IsBooked,
-                    AppointmentId = slot.Appointment?.Id ?? 0 // Check for null
+                    AppointmentId = slot.Appointment?.Id ?? 0 // This should now correctly map the AppointmentId
                 }).ToList();
 
                 return availableSlots;
