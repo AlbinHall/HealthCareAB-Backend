@@ -15,18 +15,12 @@ namespace HealthCareABApi.Repositories.Implementations
             _Dbcontext = context;
         }
 
-        public async Task<IEnumerable<AvailableSlotsDTO>> GetAllAsync()
+        public async Task<IEnumerable<Availability>> GetAllAsync()
         {
             try
             {
                 return await _Dbcontext.Availability
                     .Include(a => a.Caregiver)
-                    .Select(a => new AvailableSlotsDTO
-                    {
-                        CaregiverId = a.Caregiver.Id,
-                        StartTime = a.StartTime,
-                        EndTime = a.EndTime
-                    })
                     .ToListAsync();
             }
             catch (Exception ex)

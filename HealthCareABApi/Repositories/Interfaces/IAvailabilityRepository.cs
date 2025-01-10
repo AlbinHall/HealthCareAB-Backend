@@ -6,7 +6,7 @@ namespace HealthCareABApi.Repositories
 {
     public interface IAvailabilityRepository
     {
-        Task<IEnumerable<AvailableSlotsDTO>> GetAllAsync();
+        Task<IEnumerable<Availability>> GetAllAsync();
         Task<Availability> GetByIdAsync(int id);
         Task CreateAsync(Availability availability);
         Task UpdateAsync(int id, Availability availability);

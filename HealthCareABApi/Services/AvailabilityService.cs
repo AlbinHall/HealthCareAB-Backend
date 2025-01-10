@@ -26,7 +26,7 @@ namespace HealthCareABApi.Services
 
                 if (!allAvailableSlots.Any() || allAvailableSlots == null)
                 {
-                    throw new Exception("No available slots found.");
+                    return new List<AvailableSlotsDTO>();
                 }
 
                 // Map the data to AvailableSlotsDTO
@@ -34,7 +34,8 @@ namespace HealthCareABApi.Services
                 {
                     StartTime = slot.StartTime,
                     EndTime = slot.EndTime,
-                    CaregiverId = slot.CaregiverId
+                    CaregiverId = slot.Caregiver.Id,
+                    IsBooked = slot.IsBooked,
                 }).ToList();
 
                 return availableSlots;
@@ -53,7 +54,7 @@ namespace HealthCareABApi.Services
 
                 if (allAvailabilities == null || !allAvailabilities.Any())
                 {
-                    throw new Exception("No availabilities found for the specified caregiver.");
+                    return new List<AvailableSlotsDTO>();
                 }
 
                 // Map the data to AvailableSlotsDTO
