@@ -292,6 +292,7 @@ namespace HealthCareAb_Tests
         public AppointmentServiceTests()
         {
             _mockRepository = new Mock<IAppointmentRepository>();
+            _mockAvailabilityRepository = new Mock<IAvailabilityRepository>(); // Instantiate the mock
             _service = new AppointmentService(_mockRepository.Object, _mockAvailabilityRepository.Object);
         }
 
