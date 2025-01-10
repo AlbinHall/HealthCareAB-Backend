@@ -41,11 +41,6 @@ namespace HealthCareABApi.Controllers
             {
                 var availabilities = await _availabilityService.GetByCaregiverIdAsync(caregiverId);
 
-                if (availabilities == null || !availabilities.Any())
-                {
-                    return NotFound("No availabilities found for the specified caregiver.");
-                }
-
                 return Ok(availabilities);
             }
             catch (Exception ex)
