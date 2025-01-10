@@ -8,5 +8,6 @@ namespace HealthCareABApi.Repositories.Interfaces
         Task<IEnumerable<AvailableSlotsDTO>> GetAllAsync();
         Task<IEnumerable<AvailableSlotsDTO>> GetByCaregiverIdAsync(int caregiverId);
         Task CreateAsync(Availability availability);
+        Task DeleteAsync(int id);
     }
 }

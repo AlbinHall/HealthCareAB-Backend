@@ -153,7 +153,7 @@ namespace HealthCareABApi.Controllers
         {
             try
             {
-                await _availabilityRepository.DeleteAsync(id);
+                await _availabilityService.DeleteAsync(id);
                 return Ok(new { Message = "Availability deleted successfully." });
             }
             catch (Exception ex)
