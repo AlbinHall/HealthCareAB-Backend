@@ -80,7 +80,11 @@ namespace HealthCareABApi.Repositories.Implementations
 
         public async Task<IEnumerable<Availability>> GetByCaregiverIdAsync(int caregiverId)
         {
-            return await _Dbcontext.Availability.Include(x => x.Caregiver).Where(a => a.Caregiver.Id == caregiverId).ToListAsync();
+            return await _Dbcontext.Availability
+                .Include(a => a.Caregiver)
+                .Include(a => a.Appointment) // Include the Appointment navigation property
+                .Where(a => a.Caregiver.Id == caregiverId)
+                .ToListAsync();
         }
     }
 }

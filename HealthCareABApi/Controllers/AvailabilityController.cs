@@ -8,7 +8,6 @@ using HealthCareABApi.Repositories.Interfaces;
 
 namespace HealthCareABApi.Controllers
 {
-    [Authorize(Roles = Roles.Admin)]
     [ApiController]
     [Route("api/[Controller]")]
     public class AvailabilityController : ControllerBase
@@ -35,7 +34,6 @@ namespace HealthCareABApi.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
         [HttpGet("{caregiverId}")]
         public async Task<IActionResult> GetAvailabilitiesByCaregiverId(int caregiverId)
         {
@@ -55,7 +53,7 @@ namespace HealthCareABApi.Controllers
                 return StatusCode(500, new { Error = ex.Message });
             }
         }
-
+        [Authorize(Roles = Roles.Admin)]
         [HttpPost("CreateAvailibility")]
         public async Task<IActionResult> CreateAvailability([FromBody] CreateAvailabilityDTO availabilityDto)
         {
@@ -90,6 +88,7 @@ namespace HealthCareABApi.Controllers
                     Caregiver = caregiver,
                     StartTime = availabilityDto.StartTime.ToLocalTime(),
                     EndTime = availabilityDto.EndTime.ToLocalTime(),
+                    IsBooked = availabilityDto.IsBooked = false,
                 };
 
                 await _availabilityService.CreateAsync(availability);
@@ -100,7 +99,8 @@ namespace HealthCareABApi.Controllers
                 return StatusCode(500, new { Error = ex.Message });
             }
         }
-        [HttpPut]
+        [Authorize(Roles = Roles.Admin)]
+        [HttpPut("UpdateAvailability/{id}")] // Include the id in the route
         public async Task<IActionResult> UpdateAvailability(int id, [FromBody] CreateAvailabilityDTO availabilityDto)
         {
             if (availabilityDto.StartTime >= availabilityDto.EndTime)
@@ -135,8 +135,8 @@ namespace HealthCareABApi.Controllers
                     return NotFound("Availability not found.");
                 }
 
-                existingAvailability.StartTime = availabilityDto.StartTime;
-                existingAvailability.EndTime = availabilityDto.EndTime;
+                existingAvailability.StartTime = availabilityDto.StartTime.ToLocalTime();
+                existingAvailability.EndTime = availabilityDto.EndTime.ToLocalTime();
 
                 await _availabilityRepository.UpdateAsync(id, existingAvailability);
 
@@ -147,6 +147,7 @@ namespace HealthCareABApi.Controllers
                 return StatusCode(500, new { Error = ex.Message });
             }
         }
+        [Authorize(Roles = Roles.Admin)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAvailability(int id)
         {

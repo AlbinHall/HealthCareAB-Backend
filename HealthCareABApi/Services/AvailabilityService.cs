@@ -59,9 +59,12 @@ namespace HealthCareABApi.Services
                 // Map the data to AvailableSlotsDTO
                 var availableSlots = allAvailabilities.Select(slot => new AvailableSlotsDTO
                 {
+                    Id = slot.Id,
                     StartTime = slot.StartTime,
                     EndTime = slot.EndTime,
-                    CaregiverId = slot.Caregiver.Id
+                    CaregiverId = slot.Caregiver.Id,
+                    IsBooked = slot.IsBooked,
+                    AppointmentId = slot.Appointment?.Id ?? 0 // This should now correctly map the AppointmentId
                 }).ToList();
 
                 return availableSlots;
@@ -97,12 +100,11 @@ namespace HealthCareABApi.Services
             {
                 var slot = new Availability
                 {
-                    StartTime = currentStartTime,
-                    EndTime = currentStartTime.AddMinutes(30),
+                    StartTime = DateTime.Parse(currentStartTime.ToString("yyyy-MM-dd HH:mm:ss")),
+                    EndTime = DateTime.Parse(currentStartTime.AddMinutes(30).ToString("yyyy-MM-dd HH:mm:ss")),
                     Caregiver = availability.Caregiver
                 };
 
-                // Check if the slot already exists
                 var existingSlot = await _Dbcontext.Availability
                     .FirstOrDefaultAsync(s => s.StartTime == slot.StartTime && s.Caregiver.Id == slot.Caregiver.Id);
 
