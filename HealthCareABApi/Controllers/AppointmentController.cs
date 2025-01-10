@@ -93,7 +93,7 @@ namespace HealthCareABApi.Controllers
 
         [Authorize(Roles = Roles.Admin)]
         [HttpPut("updateappointment")]
-        public async Task<IActionResult> UpdateAppointment(int id, [FromBody] UpdateAppointmentDTO dto)
+        public async Task<IActionResult> UpdateAppointment([FromBody] UpdateAppointmentDTO dto)
         {
             if (!ModelState.IsValid)
             {
@@ -102,7 +102,7 @@ namespace HealthCareABApi.Controllers
 
             try
             {
-                await _appointmentService.UpdateAsync(id, dto);
+                await _appointmentService.UpdateAsync(dto);
                 return NoContent();  // kod 204 - lyckda update
             }
             catch (KeyNotFoundException)
