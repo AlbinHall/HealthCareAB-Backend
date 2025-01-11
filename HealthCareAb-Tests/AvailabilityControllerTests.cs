@@ -231,5 +231,86 @@ namespace HealthCareAb_Tests
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             Assert.Equal("Unexpected error.", badRequestResult.Value);
         }
+
+        [Fact]
+        public async Task GetUniqueSlots_ReturnsOkWithUniqueSlots()
+        {
+            var slots = new List<Availability>
+            {
+                new()
+                {
+                    StartTime = DateTime.Now,
+                    EndTime = DateTime.Now.AddMinutes(30),
+                    IsBooked = false,
+                    Caregiver = new User {Id = 1, Username = "Caregiver 1", PasswordHash = "123"}
+                },
+                new()
+                {
+                    StartTime = DateTime.Now,
+                    EndTime = DateTime.Now.AddMinutes(30),
+                    IsBooked = false,
+                    Caregiver = new User { Id = 2, Username = "Caregiver 2", PasswordHash = "321" }
+                },
+                new()
+                {
+                    StartTime = DateTime.Now.AddHours(1),
+                    EndTime = DateTime.Now.AddHours(1).AddMinutes(30),
+                    IsBooked = false,
+                    Caregiver = new User { Id = 1, Username = "Caregiver 3", PasswordHash = "132" }
+                }
+            };
+
+            var expectedUniqueSlots = new List<UniqueSlotsDTO>
+            {
+                new()
+                {
+                    StartTime = slots[0].StartTime,
+                    EndTime = slots[0].EndTime,
+                    Caregivers = new List<CaregiverDTO>
+                    {
+                        new CaregiverDTO { Id = 1, Name = "Caregiver 1" },
+                        new CaregiverDTO { Id = 2, Name = "Caregiver 2" }
+                    }
+                },
+                new()
+                {
+                    StartTime = slots[2].StartTime,
+                    EndTime = slots[2].EndTime,
+                    Caregivers = new List<CaregiverDTO>
+                    {
+                        new CaregiverDTO { Id = 1, Name = "Caregiver 1" }
+                    }
+                }
+            };
+
+            _mockService.Setup(service => service.GetUniqueSlotsAsync()).ReturnsAsync(expectedUniqueSlots);
+
+            // Act
+            var result = await _controller.GetUniqueSlots();
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var returnedSlots = Assert.IsType<List<UniqueSlotsDTO>>(okResult.Value);
+            Assert.Equal(2, returnedSlots.Count); // Två unika tidsluckor
+            Assert.Equal(expectedUniqueSlots[0].StartTime, returnedSlots[0].StartTime); // Verifiera första tidsluckan
+            Assert.Equal(2, returnedSlots[0].Caregivers.Count); // Två vårdgivare för första tidsluckan
+            Assert.Equal(expectedUniqueSlots[1].StartTime, returnedSlots[1].StartTime); // Verifiera andra tidsluckan
+            Assert.Single(returnedSlots[1].Caregivers); // En vårdgivare för andra tidsluckan
+        }
+
+        [Fact]
+        public async Task GetUniqueSlots_ReturnsInternalServerErrorOnException()
+        {
+            // Arrange
+            _mockService.Setup(service => service.GetUniqueSlotsAsync()).ThrowsAsync(new Exception("Failed to generate unique time slots"));
+
+            // Act
+            var result = await _controller.GetUniqueSlots();
+
+            // Assert
+            var objectResult = Assert.IsType<ObjectResult>(result);
+            Assert.Equal(500, objectResult.StatusCode);
+            Assert.Equal("Failed to generate unique time slots", objectResult.Value);
+        }
     }
 }

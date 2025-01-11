@@ -176,7 +176,7 @@ namespace HealthCareAb_Tests
         }
 
         [Fact]
-        public async Task DeleteAppointment_ReturnsNoContent()
+        public async Task DeleteAppointment_ReturnsOkWhenAppointmentIsDeleted()
         {
             // Arrange
             _mockService.Setup(service => service.DeleteAsync(1)).Returns(Task.CompletedTask);
@@ -185,7 +185,7 @@ namespace HealthCareAb_Tests
             var result = await _controller.DeleteAppointment(1);
 
             // Assert
-            Assert.IsType<NoContentResult>(result);
+            Assert.IsType<OkResult>(result);
         }
 
         [Fact]
@@ -202,14 +202,14 @@ namespace HealthCareAb_Tests
         }
 
         [Fact]
-        public async Task UpdateAppointment_ReturnsNoContent()
+        public async Task UpdateAppointment_ReturnsOkWhenAppointmentIsCUpdated()
         {
             // Arrange
             var updateAppointmentDTO = new UpdateAppointmentDTO
             {
                 CaregiverId = 2,
                 AppointmentTime = DateTime.Now.AddHours(1),
-                Status = AppointmentStatus.Completed
+                Status = AppointmentStatus.Scheduled
             };
 
             _mockService.Setup(service => service.UpdateAsync(updateAppointmentDTO)).Returns(Task.CompletedTask);
@@ -218,7 +218,7 @@ namespace HealthCareAb_Tests
             var result = await _controller.UpdateAppointment(updateAppointmentDTO);
 
             // Assert
-            Assert.IsType<NoContentResult>(result);
+            Assert.IsType<OkResult>(result);
         }
 
         [Fact]
