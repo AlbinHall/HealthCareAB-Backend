@@ -1,8 +1,6 @@
-﻿using System;
-using HealthCareABApi.DTO;
+﻿using HealthCareABApi.DTO;
 using HealthCareABApi.Models;
 using HealthCareABApi.Repositories.Data;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace HealthCareABApi.Repositories.Implementations

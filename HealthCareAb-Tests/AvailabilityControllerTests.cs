@@ -166,7 +166,7 @@ namespace HealthCareAb_Tests
         public async Task DeleteAvailability_NotFound_ReturnsNotFound()
         {
             // Arrange
-            _mockRepository.Setup(repo => repo.DeleteAsync(It.IsAny<int>()))
+            _mockService.Setup(repo => repo.DeleteAsync(It.IsAny<int>()))
                 .ThrowsAsync(new Exception("Availability not found."));
 
             // Act

@@ -8,10 +8,13 @@ namespace HealthCareABApi.Services
     public class AppointmentService : IAppointmentService
     {
         private readonly IAppointmentRepository _appointmentRepository;
+        private readonly IAvailabilityRepository _availabilityRepository;
 
-        public AppointmentService(IAppointmentRepository appointmentRepository)
+        public AppointmentService(IAppointmentRepository appointmentRepository, IAvailabilityRepository availabilityRepository)
         {
             _appointmentRepository = appointmentRepository;
+            _availabilityRepository = availabilityRepository;
+
         }
 
         public async Task<AppointmentResponseDTO> CreateAsync(CreateAppointmentDTO dto)
@@ -130,26 +133,34 @@ namespace HealthCareABApi.Services
             return DetailedResponses;
         }
 
-        public async Task UpdateAsync(int id, UpdateAppointmentDTO dto)
+        public async Task UpdateAsync(UpdateAppointmentDTO dto)
         {
             try
             {
-                var existingAppointment = await _appointmentRepository.GetByIdAsync(id);
+                var existingAppointment = await _appointmentRepository.GetByIdAsync(dto.AppointmentId);
 
                 if (existingAppointment == null)
                 {
                     throw new KeyNotFoundException("Appointment not found");
                 }
 
+                var availability = await _availabilityRepository.GetByIdAsync(dto.OldAvailabilityId);
+                availability.IsBooked = false;
+                availability.Appointment = null;
+
+                var newavailability = await _availabilityRepository.GetByIdAsync(dto.NewAvailabilityId);
+                newavailability.IsBooked = true;
+                newavailability.Appointment = existingAppointment;
+
                 existingAppointment.CaregiverId = dto.CaregiverId;
                 existingAppointment.DateTime = dto.AppointmentTime;
                 existingAppointment.Status = dto.Status;
 
-                await _appointmentRepository.UpdateAsync(id, existingAppointment);
+                await _appointmentRepository.UpdateAsync(dto.AppointmentId, existingAppointment);
             }
             catch (Exception ex)
             {
-                throw new Exception($"Failed to update appointment with id {id}", ex);
+                throw new Exception($"Failed to update appointment with id {dto.AppointmentId}", ex);
             }
         }
     }

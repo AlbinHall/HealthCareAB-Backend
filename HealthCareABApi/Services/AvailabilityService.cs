@@ -123,5 +123,26 @@ namespace HealthCareABApi.Services
                 await _Dbcontext.SaveChangesAsync();
             }
         }
+
+        public async Task DeleteAsync(int id)
+        {
+            var availability = await _Dbcontext.Availability
+                .Include(a => a.Appointment)
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            if (availability == null)
+            {
+                throw new Exception("Availability not found.");
+            }
+
+            if (availability.AppointmentId.HasValue)
+            {
+                _Dbcontext.Appointment.Remove(availability.Appointment);
+            }
+
+            _Dbcontext.Availability.Remove(availability);
+
+            await _Dbcontext.SaveChangesAsync();
+        }
     }
 }

@@ -212,10 +212,10 @@ namespace HealthCareAb_Tests
                 Status = AppointmentStatus.Completed
             };
 
-            _mockService.Setup(service => service.UpdateAsync(1, updateAppointmentDTO)).Returns(Task.CompletedTask);
+            _mockService.Setup(service => service.UpdateAsync(updateAppointmentDTO)).Returns(Task.CompletedTask);
 
             // Act
-            var result = await _controller.UpdateAppointment(1, updateAppointmentDTO);
+            var result = await _controller.UpdateAppointment(updateAppointmentDTO);
 
             // Assert
             Assert.IsType<NoContentResult>(result);
@@ -232,10 +232,10 @@ namespace HealthCareAb_Tests
                 Status = AppointmentStatus.Completed
             };
 
-            _mockService.Setup(service => service.UpdateAsync(1, updateAppointmentDTO)).ThrowsAsync(new KeyNotFoundException());
+            _mockService.Setup(service => service.UpdateAsync(updateAppointmentDTO)).ThrowsAsync(new KeyNotFoundException());
 
             // Act
-            var result = await _controller.UpdateAppointment(1, updateAppointmentDTO);
+            var result = await _controller.UpdateAppointment(updateAppointmentDTO);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -286,12 +286,14 @@ namespace HealthCareAb_Tests
     public class AppointmentServiceTests
     {
         private readonly Mock<IAppointmentRepository> _mockRepository;
+        private readonly Mock<IAvailabilityRepository> _mockAvailabilityRepository;
         private readonly AppointmentService _service;
 
         public AppointmentServiceTests()
         {
             _mockRepository = new Mock<IAppointmentRepository>();
-            _service = new AppointmentService(_mockRepository.Object);
+            _mockAvailabilityRepository = new Mock<IAvailabilityRepository>(); // Instantiate the mock
+            _service = new AppointmentService(_mockRepository.Object, _mockAvailabilityRepository.Object);
         }
 
         [Fact]
