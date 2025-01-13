@@ -46,6 +46,42 @@ namespace HealthCareABApi.Services
             }
         }
 
+        public async Task<IEnumerable<UniqueSlotsDTO>> GetUniqueSlotsAsync()
+        {
+            try
+            {
+                var slots = await _availabilityRepository.GetAllAsync();
+
+                if (slots == null || !slots.Any())
+                {
+                    return [];
+                }
+
+                var availableSlots = slots.Where(s => !s.IsBooked);
+
+                var uniqueSlots = availableSlots
+                    .GroupBy(s => new { s.StartTime })
+                    .Select(g => new UniqueSlotsDTO
+                    {
+                        StartTime = g.Key.StartTime,
+                        EndTime = g.First().EndTime, // endtime always the same for each group since we add 30 mins to start. With various endtimes on slots we'd have to group endtime as well.
+                        Caregivers = g.Select(s => new CaregiverDTO
+                        {
+                            Id = s.Caregiver.Id,
+                            Name = s.Caregiver.Username
+                        }).ToList()
+                    })
+                    .OrderBy(s => s.StartTime)
+                    .ToList();
+
+                return uniqueSlots;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to generate unique time slots: {ex.Message}");
+            }
+        }
+
         public async Task<IEnumerable<AvailableSlotsDTO>> GetByCaregiverIdAsync(int caregiverId)
         {
             try

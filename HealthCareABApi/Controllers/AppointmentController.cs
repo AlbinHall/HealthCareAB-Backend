@@ -79,7 +79,7 @@ namespace HealthCareABApi.Controllers
             try
             {
                 await _appointmentService.DeleteAsync(id);
-                return NoContent(); // kod 204 = lyckad delete
+                return Ok();
             }
             catch (KeyNotFoundException)
             {
@@ -103,7 +103,7 @@ namespace HealthCareABApi.Controllers
             try
             {
                 await _appointmentService.UpdateAsync(dto);
-                return NoContent();  // kod 204 - lyckda update
+                return Ok();
             }
             catch (KeyNotFoundException)
             {

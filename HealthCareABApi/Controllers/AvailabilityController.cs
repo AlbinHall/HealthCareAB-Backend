@@ -34,6 +34,22 @@ namespace HealthCareABApi.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [Authorize(Roles = Roles.User)]
+        [HttpGet("getuniqueslots")]
+        public async Task<IActionResult> GetUniqueSlots()
+        {
+            try
+            {
+                var uniqueSlots = await _availabilityService.GetUniqueSlotsAsync();
+                return Ok(uniqueSlots);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
         [HttpGet("{caregiverId}")]
         public async Task<IActionResult> GetAvailabilitiesByCaregiverId(int caregiverId)
         {
