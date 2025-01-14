@@ -8,7 +8,12 @@ namespace HealthCareABApi.BackgroundJobs
     public class CleanupSlotsService(IServiceProvider services) : BackgroundService
     {
         private readonly IServiceProvider _services = services;
-        private readonly TimeSpan _runTime = new(11, 54, 0); // kl 02:00
+        private readonly TimeSpan _runTime = new(2, 0, 0); // kl 02:00
+
+        public async Task RunCleanupAsync()
+        {
+            throw new NotImplementedException();
+        }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
