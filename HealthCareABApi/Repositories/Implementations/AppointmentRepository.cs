@@ -30,6 +30,17 @@ namespace HealthCareABApi.Repositories.Implementations
                 .FirstOrDefaultAsync(a => a.Id == id);
         }
 
+        public async Task<Appointment> GetByPatientAndTimeAsync(int patientId, DateTime appointmentTime)
+        {
+            var localTime = appointmentTime.ToLocalTime(); // Konvertera till lokal tid
+
+            return await _Dbcontext.Appointment
+                .FirstOrDefaultAsync(a =>
+                    a.PatientId == patientId &&
+                    EF.Functions.DateDiffSecond(a.DateTime, localTime) == 0 && // Ignorerar millisekunder i databasen och kollar tiden på sekundnivå
+                    a.Status == AppointmentStatus.Scheduled);
+        }
+
         public async Task<IEnumerable<Appointment>> GetByUserIdAsync(int patientId)
         {
             return await _Dbcontext.Appointment
