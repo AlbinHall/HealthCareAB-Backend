@@ -101,6 +101,9 @@ namespace HealthCareAb_Tests
             {
                 Username = "user",
                 PasswordHash = "hashedPassword",
+                Firstname = "test",
+                Lastname = "test",
+                Email = "test@example.com",
                 Roles = new List<UserRole>
                 {
                     new UserRole
