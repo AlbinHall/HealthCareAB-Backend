@@ -59,8 +59,8 @@ namespace HealthCareABApi.Controllers
                         new HistoryDTO
                         {
                             Id = appointment.Id,
-                            PatientName = appointment.Patient?.Username ?? "Unknown",
-                            CaregiverName = appointment.Caregiver?.Username ?? "Unknown",
+                            PatientName = appointment.Patient?.Firstname + " " + appointment.Patient?.Lastname ?? "Unknown",
+                            CaregiverName = appointment.Caregiver?.Firstname + " " + appointment.Caregiver?.Lastname ?? "Unknown",
                             DateTime = appointment.DateTime,
                             HasFeedback = feedbacks.Any(f => f.AppointmentId == appointment.Id)
                         }
