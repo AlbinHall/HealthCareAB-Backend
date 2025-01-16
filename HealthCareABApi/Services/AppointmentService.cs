@@ -82,8 +82,8 @@ namespace HealthCareABApi.Services
                     .Select(a => new GetAllAppointmentsDTO
                     {
                         Id = a.Id,
-                        PatientName = a.Patient.Username,
-                        CaregiverName = a.Caregiver.Username,
+                        PatientName = a.Patient.Firstname + " " + a.Patient.Lastname,
+                        CaregiverName = a.Caregiver.Firstname + " " + a.Caregiver.Lastname,
                         AppointmentTime = a.DateTime,
                         Status = a.Status
 
@@ -127,9 +127,9 @@ namespace HealthCareABApi.Services
                 {
                         Id = appointment.Id,
                         PatientId = patientId,
-                        PatientName = appointment.Patient.Username, // Add name prop later maybe
-                        CaregiverId = appointment.CaregiverId,
-                        CaregiverName = appointment.Caregiver.Username,
+                        PatientName = appointment.Patient.Firstname + " " + appointment.Patient.Lastname,
+                        CaregiverId = appointment.Caregiver.Id,
+                        CaregiverName = appointment.Caregiver.Firstname + " " + appointment.Caregiver.Lastname,
                         AppointmentTime = appointment.DateTime,
                         Status = appointment.Status,
                     }

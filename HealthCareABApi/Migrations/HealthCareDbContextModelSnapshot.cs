@@ -22,36 +22,7 @@ namespace HealthCareABApi.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("HealthCareABApi.Models.Appointment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CaregiverId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("DateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("PatientId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CaregiverId");
-
-                    b.HasIndex("PatientId");
-
-                    b.ToTable("Appointment");
-                });
-
-            modelBuilder.Entity("HealthCareABApi.Models.Availability", b =>
+            modelBuilder.Entity("Availability", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -81,6 +52,35 @@ namespace HealthCareABApi.Migrations
                     b.HasIndex("CaregiverId");
 
                     b.ToTable("Availability");
+                });
+
+            modelBuilder.Entity("HealthCareABApi.Models.Appointment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CaregiverId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PatientId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CaregiverId");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("Appointment");
                 });
 
             modelBuilder.Entity("HealthCareABApi.Models.Feedback", b =>
@@ -145,6 +145,18 @@ namespace HealthCareABApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Firstname")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Lastname")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -173,6 +185,23 @@ namespace HealthCareABApi.Migrations
                     b.ToTable("UserRoles");
                 });
 
+            modelBuilder.Entity("Availability", b =>
+                {
+                    b.HasOne("HealthCareABApi.Models.Appointment", "Appointment")
+                        .WithMany()
+                        .HasForeignKey("AppointmentId");
+
+                    b.HasOne("HealthCareABApi.Models.User", "Caregiver")
+                        .WithMany()
+                        .HasForeignKey("CaregiverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Appointment");
+
+                    b.Navigation("Caregiver");
+                });
+
             modelBuilder.Entity("HealthCareABApi.Models.Appointment", b =>
                 {
                     b.HasOne("HealthCareABApi.Models.User", "Caregiver")
@@ -190,23 +219,6 @@ namespace HealthCareABApi.Migrations
                     b.Navigation("Caregiver");
 
                     b.Navigation("Patient");
-                });
-
-            modelBuilder.Entity("HealthCareABApi.Models.Availability", b =>
-                {
-                    b.HasOne("HealthCareABApi.Models.Appointment", "Appointment")
-                        .WithMany()
-                        .HasForeignKey("AppointmentId");
-
-                    b.HasOne("HealthCareABApi.Models.User", "Caregiver")
-                        .WithMany()
-                        .HasForeignKey("CaregiverId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Appointment");
-
-                    b.Navigation("Caregiver");
                 });
 
             modelBuilder.Entity("HealthCareABApi.Models.Feedback", b =>

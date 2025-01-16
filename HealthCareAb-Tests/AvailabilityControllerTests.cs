@@ -49,7 +49,7 @@ namespace HealthCareAb_Tests
                 EndTime = DateTime.Now.AddHours(2)
             };
 
-            var caregiver = new User { Id = 1, Username = "Abbe", PasswordHash = "123" };
+            var caregiver = new User { Id = 1, Username = "Abbe", PasswordHash = "123", Firstname = "test", Lastname = "test", Email = "test@example.com" };
 
             _mockRepository.Setup(repo => repo.GetCaregiverByIdAsync(It.IsAny<int>()))
                 .ReturnsAsync(caregiver);
@@ -101,7 +101,7 @@ namespace HealthCareAb_Tests
             var existingAvailability = new Availability
             {
                 Id = 1,
-                Caregiver = new User { Id = 1, Username = "Abbe", PasswordHash = "123" },
+                Caregiver = new User { Id = 1, Username = "Abbe", PasswordHash = "123", Firstname = "test", Lastname = "test", Email = "test@example.com" },
                 StartTime = DateTime.Now,
                 EndTime = DateTime.Now.AddHours(1),
                 IsBooked = false
@@ -112,7 +112,7 @@ namespace HealthCareAb_Tests
                 .ReturnsAsync(existingAvailability);
 
             _mockRepository.Setup(repo => repo.GetCaregiverByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(new User { Id = 1, Username = "Abbe", PasswordHash = "123" });
+                .ReturnsAsync(new User { Id = 1, Username = "Abbe", PasswordHash = "123", Firstname = "test", Lastname = "test", Email = "test@example.com" });
 
             _mockRepository.Setup(repo => repo.UpdateAsync(It.IsAny<int>(), It.IsAny<Availability>()))
                 .Returns(Task.CompletedTask);
@@ -242,21 +242,21 @@ namespace HealthCareAb_Tests
                     StartTime = DateTime.Now,
                     EndTime = DateTime.Now.AddMinutes(30),
                     IsBooked = false,
-                    Caregiver = new User {Id = 1, Username = "Caregiver 1", PasswordHash = "123"}
+                    Caregiver = new User {Id = 1, Username = "Caregiver 1", PasswordHash = "123", Firstname = "test", Lastname = "test", Email = "test@example.com"}
                 },
                 new()
                 {
                     StartTime = DateTime.Now,
                     EndTime = DateTime.Now.AddMinutes(30),
                     IsBooked = false,
-                    Caregiver = new User { Id = 2, Username = "Caregiver 2", PasswordHash = "321" }
+                    Caregiver = new User { Id = 2, Username = "Caregiver 2", PasswordHash = "321", Firstname = "test", Lastname = "test", Email = "test@example.com" }
                 },
                 new()
                 {
                     StartTime = DateTime.Now.AddHours(1),
                     EndTime = DateTime.Now.AddHours(1).AddMinutes(30),
                     IsBooked = false,
-                    Caregiver = new User { Id = 1, Username = "Caregiver 3", PasswordHash = "132" }
+                    Caregiver = new User { Id = 1, Username = "Caregiver 3", PasswordHash = "132", Firstname = "test", Lastname = "test", Email = "test@example.com" }
                 }
             };
 

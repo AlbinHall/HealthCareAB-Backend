@@ -68,7 +68,7 @@ namespace HealthCareABApi.Services
                         Caregivers = g.Select(s => new CaregiverDTO
                         {
                             Id = s.Caregiver.Id,
-                            Name = s.Caregiver.Username
+                            Name = s.Caregiver.Firstname + " " + s.Caregiver.Lastname
                         }).ToList()
                     })
                     .OrderBy(s => s.StartTime)
