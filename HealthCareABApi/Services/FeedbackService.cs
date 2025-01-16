@@ -26,16 +26,14 @@ namespace HealthCareABApi.Services
                 };
             }
 
-            // Calculate average rating
             double totalRating = feedbacks.Sum(f => f.Rating);
             double averageRating = totalRating / feedbacks.Count();
 
-            // Group comments by rating
             var commentsByRating = feedbacks
                 .GroupBy(f => f.Rating)
                 .ToDictionary(
                     g => g.Key, // Rating
-                    g => g.Select(f => f.Comment).ToList() // List of comments for this rating
+                    g => g.Select(f => f.Comment).ToList()
                 );
 
             return new CaregiverFeedbackSummaryDTO
