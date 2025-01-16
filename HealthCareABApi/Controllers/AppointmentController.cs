@@ -32,7 +32,7 @@ namespace HealthCareABApi.Controllers
             }
             catch (InvalidOperationException ex)
             {
-                return BadRequest("No availability was found for this caregiver");
+                return BadRequest(new {message = ex.Message });
             }
             catch (Exception)
             {

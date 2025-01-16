@@ -24,6 +24,12 @@ namespace HealthCareABApi.Services
                 throw new ArgumentNullException(nameof(dto), "CreateAppointmentDTO cannot be null");
             }
 
+            var existingAppointment = await _appointmentRepository.GetByPatientAndTimeAsync(dto.PatientId, dto.AppointmentTime);
+            if (existingAppointment != null)
+            {
+                throw new InvalidOperationException("You already have a scheduled appointment at this time.");
+            }
+
             try
             {
                 var appointment = new Appointment

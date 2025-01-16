@@ -11,6 +11,7 @@ namespace HealthCareABApi.Repositories
         Task<bool> UpdateAsync(int id, Appointment appointment);
         Task DeleteAsync(int id);
         Task<IEnumerable<Appointment>> GetByUserIdAsync(int patientId);
+        Task<Appointment> GetByPatientAndTimeAsync(int patientId, DateTime appointmentTime);
     }
 }
 
