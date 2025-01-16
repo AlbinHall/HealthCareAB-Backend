@@ -104,7 +104,7 @@ namespace HealthCareABApi.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpGet("GetFeedbackSummaryByCaregiverId")]
+        [HttpGet("SummaryByCaregiverId/{id}")]
         public async Task<IActionResult> GetFeedbackSummaryByCaregiverId(int id)
         {
             if (id <= 0)
