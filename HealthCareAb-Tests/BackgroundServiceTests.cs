@@ -45,14 +45,14 @@ namespace HealthCareAb_Tests
                 {
                     new Availability
                     {
-                        Caregiver = new User { Id = 1, Username = "Caregiver 1", PasswordHash = "123" },
+                        Caregiver = new User { Id = 1, Username = "Caregiver 1", PasswordHash = "123", Firstname = "FirstTest", Lastname = "LastTest", Email = "Test@example.com" },
                         StartTime = slotStart,
                         EndTime = slotStart.AddMinutes(30), // EndTime är 30 minuter efter StartTime
                         IsBooked = false
                     },
                     new Availability
                     {
-                        Caregiver = new User { Id = 2, Username = "Caregiver 2", PasswordHash = "321" },
+                        Caregiver = new User { Id = 2, Username = "Caregiver 2", PasswordHash = "321", Firstname = "FirstTest", Lastname = "LastTest", Email = "Test@example.com" },
                         StartTime = slotStart.AddDays(1),
                         EndTime = slotStart.AddDays(1).AddMinutes(30), // EndTime är 30 minuter efter StartTime
                         IsBooked = false
