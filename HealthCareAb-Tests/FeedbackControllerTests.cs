@@ -24,7 +24,7 @@ namespace HealthCareAb_Tests
         public FeedbackControllerTests()
         {
             _mockRepo = new Mock<IFeedbackRepository>();
-            _mockService = new Mock<IFeedbackService>(_mockRepo.Object);
+            _mockService = new Mock<IFeedbackService>();
             _controller = new FeedbackController(_mockRepo.Object, _mockService.Object);
         }
 
