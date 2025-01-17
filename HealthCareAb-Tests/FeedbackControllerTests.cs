@@ -2,6 +2,7 @@
 using HealthCareABApi.DTO;
 using HealthCareABApi.Models;
 using HealthCareABApi.Repositories;
+using HealthCareABApi.Repositories.Interfaces;
 using HealthCareABApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -17,13 +18,13 @@ namespace HealthCareAb_Tests
     public class FeedbackControllerTests
     {
         private readonly Mock<IFeedbackRepository> _mockRepo;
-        private readonly Mock<FeedbackService> _mockService;
+        private readonly Mock<IFeedbackService> _mockService;
         private readonly FeedbackController _controller;
 
         public FeedbackControllerTests()
         {
             _mockRepo = new Mock<IFeedbackRepository>();
-            _mockService = new Mock<FeedbackService>(_mockRepo.Object);
+            _mockService = new Mock<IFeedbackService>(_mockRepo.Object);
             _controller = new FeedbackController(_mockRepo.Object, _mockService.Object);
         }
 

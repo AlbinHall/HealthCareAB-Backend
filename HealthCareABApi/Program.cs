@@ -25,9 +25,7 @@ builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
-
-// Register FeedbackService
-builder.Services.AddScoped<FeedbackService>();
+builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 
 // Register background jobs
 builder.Services.AddHostedService<CleanupSlotsService>();

@@ -1,6 +1,7 @@
 ﻿using HealthCareABApi.DTO;
 using HealthCareABApi.Models;
 using HealthCareABApi.Repositories;
+using HealthCareABApi.Repositories.Interfaces;
 using HealthCareABApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,9 +12,9 @@ namespace HealthCareABApi.Controllers
     public class FeedbackController : ControllerBase
     {
         private readonly IFeedbackRepository _feedbackRepository;
-        private readonly FeedbackService _feedbackService;
+        private readonly IFeedbackService _feedbackService;
 
-        public FeedbackController(IFeedbackRepository feedbackRepository, FeedbackService feedbackService)
+        public FeedbackController(IFeedbackRepository feedbackRepository, IFeedbackService feedbackService)
         {
             _feedbackRepository = feedbackRepository;
             _feedbackService = feedbackService;

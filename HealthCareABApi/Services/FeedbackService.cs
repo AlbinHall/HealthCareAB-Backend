@@ -1,9 +1,10 @@
 ﻿using HealthCareABApi.DTO;
 using HealthCareABApi.Repositories;
+using HealthCareABApi.Repositories.Interfaces;
 
 namespace HealthCareABApi.Services
 {
-    public class FeedbackService
+    public class FeedbackService : IFeedbackService
     {
         private readonly IFeedbackRepository _feedbackRepository;
 
