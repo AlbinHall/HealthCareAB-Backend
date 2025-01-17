@@ -52,6 +52,11 @@ namespace HealthCareABApi.Repositories.Implementations
             await _Dbcontext.Feedback.Where(f => f.Id == id).ExecuteDeleteAsync();
             await _Dbcontext.SaveChangesAsync();
         }
+
+        public async Task<IEnumerable<Feedback>> GetByCareGiverIdAsync(int id)
+        {
+            return await _Dbcontext.Feedback.Include(f => f.Appointment).Where(f => f.Appointment.CaregiverId == id).ToListAsync();
+        }
     }
 }
 

@@ -1,11 +1,8 @@
-﻿using System;
-using System.Security.Claims;
-using HealthCareABApi.DTO;
+﻿using HealthCareABApi.DTO;
 using HealthCareABApi.Models;
 using HealthCareABApi.Repositories;
 using HealthCareABApi.Repositories.Interfaces;
 using HealthCareABApi.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HealthCareABApi.Controllers
@@ -15,10 +12,12 @@ namespace HealthCareABApi.Controllers
     public class FeedbackController : ControllerBase
     {
         private readonly IFeedbackRepository _feedbackRepository;
+        private readonly IFeedbackService _feedbackService;
 
-        public FeedbackController(IFeedbackRepository feedbackRepository)
+        public FeedbackController(IFeedbackRepository feedbackRepository, IFeedbackService feedbackService)
         {
             _feedbackRepository = feedbackRepository;
+            _feedbackService = feedbackService;
         }
 
         [HttpPost("Create")]
@@ -100,6 +99,30 @@ namespace HealthCareABApi.Controllers
                 };
 
                 return Ok(feedbackDTO);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet("SummaryByCaregiverId/{id}")]
+        public async Task<IActionResult> GetFeedbackSummaryByCaregiverId(int id)
+        {
+            if (id <= 0)
+            {
+                return BadRequest("Invalid caregiver ID.");
+            }
+
+            try
+            {
+                var feedbackSummary = await _feedbackService.GetFeedbackSummaryByCaregiverIdAsync(id);
+
+                if (feedbackSummary.CommentsByRating == null || !feedbackSummary.CommentsByRating.Any())
+                {
+                    return NotFound("No feedback found for this caregiver.");
+                }
+
+                return Ok(feedbackSummary);
             }
             catch (Exception ex)
             {

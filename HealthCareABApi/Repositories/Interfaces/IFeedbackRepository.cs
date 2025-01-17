@@ -12,6 +12,7 @@ namespace HealthCareABApi.Repositories
         Task UpdateAsync(int id, Feedback feedback);
         Task DeleteAsync(int id);
         Task<IEnumerable<Feedback>> GetByPatientIdAsync(int id);
+        Task<IEnumerable<Feedback>> GetByCareGiverIdAsync(int id);
     }
 }
 

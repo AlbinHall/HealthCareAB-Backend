@@ -2,33 +2,32 @@
 using HealthCareABApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Cors.Infrastructure;
 using HealthCareABApi.Repositories;
 using HealthCareABApi.Repositories.Implementations;
 using HealthCareABApi.Repositories.Data;
-using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Hosting;
 using HealthCareABApi.Repositories.Interfaces;
 using HealthCareABApi.BackgroundJobs;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Register DbContext
 builder.Services.AddDbContext<HealthCareDbContext>(options =>
-           options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 // Register repositories
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IAvailabilityRepository, AvailabilityRepository>();
-
 builder.Services.AddScoped<IAvailabilityService, AvailabilityService>();
-
 builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 
+// Register background jobs
 builder.Services.AddHostedService<CleanupSlotsService>();
 
 // Add controllers
@@ -99,7 +98,6 @@ builder.Services.AddAuthentication(options =>
             return Task.CompletedTask;
         }
     };
-    // Configure token validation parameters for JWT Bearer authentication.
     options.TokenValidationParameters = new TokenValidationParameters
     {
         // This ensures that the token was issued by a trusted source.
@@ -134,16 +132,15 @@ builder.Services.AddCors(options =>
         // Only requests coming from "https://localhost:5173" will be allowed.
         // You can add more origins here if needed.
         policy.WithOrigins("https://localhost:5173")
-               // Allow any HTTP method (e.g., GET, POST, PUT, DELETE) for cross-origin requests.
+              // Allow any HTTP method (e.g., GET, POST, PUT, DELETE) for cross-origin requests.
               .AllowAnyMethod()
               // Allow any HTTP header in the requests (e.g., Content-Type, Authorization).
               .AllowAnyHeader()
               // Required for cross-origin cookies
               // This is necessary when you want to send cookies, like JWT tokens in cookies, across origins.
-              .AllowCredentials(); 
+              .AllowCredentials();
     });
 });
-
 
 var app = builder.Build();
 
