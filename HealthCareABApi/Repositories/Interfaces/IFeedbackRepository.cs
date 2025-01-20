@@ -1,4 +1,5 @@
 ﻿using System;
+using HealthCareABApi.DTO;
 using HealthCareABApi.Models;
 
 namespace HealthCareABApi.Repositories
@@ -13,6 +14,7 @@ namespace HealthCareABApi.Repositories
         Task DeleteAsync(int id);
         Task<IEnumerable<Feedback>> GetByPatientIdAsync(int id);
         Task<IEnumerable<Feedback>> GetByCareGiverIdAsync(int id);
+        Task<IEnumerable<Feedback>> GetByRatingAsync(int rating);
     }
 }
 

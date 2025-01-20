@@ -129,5 +129,30 @@ namespace HealthCareABApi.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("GetByRating/{rating}")]
+        public async Task<IActionResult> GetFeedbackByRating(int rating)
+        {
+            if (rating <= 0 || rating > 5)
+            {
+                return BadRequest("Rating must be between 1-5");
+            }
+
+            try
+            {
+                var feedbackList = await _feedbackService.GetFeedbackByRatingAsync(rating);
+
+                if (feedbackList == null || !feedbackList.Any())
+                {
+                    return NotFound("No feedback found with this reating");
+                }
+
+                return Ok(feedbackList);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

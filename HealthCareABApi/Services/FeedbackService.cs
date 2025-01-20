@@ -1,6 +1,7 @@
 ﻿using HealthCareABApi.DTO;
 using HealthCareABApi.Repositories;
 using HealthCareABApi.Repositories.Interfaces;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace HealthCareABApi.Services
 {
@@ -43,6 +44,30 @@ namespace HealthCareABApi.Services
                 AverageRating = averageRating,
                 CommentsByRating = commentsByRating
             };
+        }
+
+        public async Task <IEnumerable<FeedbackDTO>> GetFeedbackByRatingAsync(int rating)
+        {
+            var feedbacks = await _feedbackRepository.GetByRatingAsync(rating);
+            List<FeedbackDTO> FeedbackList = new();
+
+            if (feedbacks == null || !feedbacks.Any())
+            {
+                return FeedbackList; //Return empty list.
+            }
+
+            foreach (var feedback in feedbacks)
+            {
+                FeedbackList.Add(
+                    new FeedbackDTO 
+                    { 
+                        AppointmentId = feedback.AppointmentId, 
+                        Comment = feedback.Comment, 
+                        Rating = feedback.Rating 
+                    });
+            }
+
+            return FeedbackList;
         }
     }
 }
