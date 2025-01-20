@@ -8,12 +8,16 @@ using HealthCareABApi.Repositories.Data;
 using Microsoft.EntityFrameworkCore;
 using HealthCareABApi.Repositories.Interfaces;
 using HealthCareABApi.BackgroundJobs;
+using HealthCareABApi.Models;
+using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Register DbContext
 builder.Services.AddDbContext<HealthCareDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 
 // Register repositories
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
@@ -26,6 +30,7 @@ builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Register background jobs
 builder.Services.AddHostedService<CleanupSlotsService>();

@@ -14,7 +14,6 @@ namespace HealthCareABApi.Services
         {
             _appointmentRepository = appointmentRepository;
             _availabilityRepository = availabilityRepository;
-
         }
 
         public async Task<AppointmentResponseDTO> CreateAsync(CreateAppointmentDTO dto)
