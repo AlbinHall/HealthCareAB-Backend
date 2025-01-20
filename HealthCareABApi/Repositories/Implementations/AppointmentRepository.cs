@@ -41,12 +41,12 @@ namespace HealthCareABApi.Repositories.Implementations
                     a.Status == AppointmentStatus.Scheduled);
         }
 
-        public async Task<IEnumerable<Appointment>> GetByUserIdAsync(int patientId)
+        public async Task<IEnumerable<Appointment>> GetCompletedByUserIdAsync(int userId)
         {
             return await _Dbcontext.Appointment
                 .Include(x => x.Caregiver)
                 .Include(x => x.Patient)
-                .Where(x => x.PatientId == patientId && x.Status == AppointmentStatus.Completed)
+                .Where(x => x.PatientId == userId && x.Status == AppointmentStatus.Completed)
                 .ToListAsync();
         }
 
@@ -77,8 +77,6 @@ namespace HealthCareABApi.Repositories.Implementations
                 await _Dbcontext.Appointment.AddAsync(appointment);
 
                 await _Dbcontext.SaveChangesAsync();
-                //await _Dbcontext.Appointment.AddAsync(appointment);
-                //await _Dbcontext.SaveChangesAsync();
             }
             catch (DbUpdateException ex)
             {
@@ -106,18 +104,59 @@ namespace HealthCareABApi.Repositories.Implementations
 
         public async Task DeleteAsync(int id)
         {
+            using (var transaction = await _Dbcontext.Database.BeginTransactionAsync())
+            {
+
+                try
+                {
+                    var relatedAvailability = await _Dbcontext.Availability
+                        .Where(a => a.AppointmentId == id)
+                        .FirstOrDefaultAsync();
+
+                    if (relatedAvailability == null)
+                    {
+                        throw new ArgumentNullException("No availability is related to this appointment.");
+                    }
+
+                    relatedAvailability.AppointmentId = null;
+                    relatedAvailability.IsBooked = false;
+                    await _Dbcontext.SaveChangesAsync(); // Need to update and save appointmentId in selected slot before deleting the appointment cuz of FK constraint
+
+                    await _Dbcontext.Appointment.Where(a => a.Id == id).ExecuteDeleteAsync();
+                    await _Dbcontext.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+                }
+                catch (DbUpdateException ex)
+                {
+                    await transaction.RollbackAsync();
+                    throw new InvalidOperationException("Database error while deleting appointment", ex);
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    throw new InvalidOperationException("Error deleting appointment", ex);
+                }
+            }
+        }
+
+        public async Task<IEnumerable<Appointment>> GetScheduledAppointmentsAsync(int userId)
+        {
             try
             {
-                await _Dbcontext.Appointment.Where(a => a.Id == id).ExecuteDeleteAsync();
-                await _Dbcontext.SaveChangesAsync();
+                return await _Dbcontext.Appointment
+                    .Include(a => a.Caregiver)
+                    .Include(a => a.Patient)
+                    .Where(a => a.PatientId == userId && a.Status == AppointmentStatus.Scheduled && a.DateTime > DateTime.Now)
+                    .ToListAsync();
             }
             catch (DbUpdateException ex)
             {
-                throw new InvalidOperationException("Database error while deleting appointment", ex);
+                throw new InvalidOperationException("Database error while fetching scheduled appointments");
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException("Error deleting appointment", ex);
+                throw new InvalidOperationException("Error fetching scheduled appointments.", ex);
             }
         }
     }

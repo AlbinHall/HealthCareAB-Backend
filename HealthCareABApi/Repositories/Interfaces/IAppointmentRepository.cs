@@ -1,4 +1,5 @@
 ﻿using System;
+using HealthCareABApi.DTO;
 using HealthCareABApi.Models;
 
 namespace HealthCareABApi.Repositories
@@ -10,8 +11,9 @@ namespace HealthCareABApi.Repositories
         Task CreateAsync(Appointment appointment);
         Task<bool> UpdateAsync(int id, Appointment appointment);
         Task DeleteAsync(int id);
-        Task<IEnumerable<Appointment>> GetByUserIdAsync(int patientId);
+        Task<IEnumerable<Appointment>> GetCompletedByUserIdAsync(int userId);
         Task<Appointment> GetByPatientAndTimeAsync(int patientId, DateTime appointmentTime);
+        Task<IEnumerable<Appointment>> GetScheduledAppointmentsAsync(int userId);
     }
 }
 

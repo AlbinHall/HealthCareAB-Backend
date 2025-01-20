@@ -115,12 +115,12 @@ namespace HealthCareABApi.Controllers
             }
         }
 
-        [HttpGet("getappointmentsbypatientid/{patientId}")]
-        public async Task<IActionResult> GetByUserId(int patientId)
+        [HttpGet("getcompletedappointmentsbyuserid/{userId}")]
+        public async Task<IActionResult> GetByUserId(int userId)
         {
             try
             {
-                var appointments = await _appointmentService.GetByUserIdAsync(patientId);
+                var appointments = await _appointmentService.GetCompletedByUserIdAsync(userId);
                 return Ok(appointments);
             }
             catch (KeyNotFoundException)
@@ -133,5 +133,23 @@ namespace HealthCareABApi.Controllers
             }
         }
 
+        [Authorize(Roles = Roles.User)]
+        [HttpGet("getscheduledappointments/{userId}")]
+        public async Task<IActionResult> GetScheduledAppointments(int userId)
+        {
+            try
+            {
+                var scheduledAppointments = await _appointmentService.GetScheduledAppointmentsAsync(userId);
+                return Ok(scheduledAppointments);
+            }
+            catch (KeyNotFoundException)
+            {
+                return BadRequest();
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Error processing GET method at api/getscheduledappointments");
+            }
+        }
     }
 }
