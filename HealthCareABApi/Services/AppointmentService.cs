@@ -40,7 +40,7 @@ namespace HealthCareABApi.Services
                     Status = AppointmentStatus.Scheduled
                 };
 
-                await _appointmentRepository.CreateAsync(appointment);
+                 await _appointmentRepository.CreateAsync(appointment);
 
                 return new AppointmentResponseDTO
                 {
@@ -99,19 +99,19 @@ namespace HealthCareABApi.Services
 
         public async Task<Appointment> GetByIdAsync(int id)
         {
-                var appointment = await _appointmentRepository.GetByIdAsync(id);
+            var appointment = await _appointmentRepository.GetByIdAsync(id);
 
-                if (appointment == null)
-                {
-                    throw new KeyNotFoundException("Appointment not found.");
-                }
+            if (appointment == null)
+            {
+                throw new KeyNotFoundException("Appointment not found.");
+            }
 
-                    return appointment;
-                }
+            return appointment;
+        }
 
-        public async Task<IEnumerable<DetailedResponseDTO>> GetByUserIdAsync(int patientId)
+        public async Task<IEnumerable<DetailedResponseDTO>> GetCompletedByUserIdAsync(int userId)
         {
-            var appointments = await _appointmentRepository.GetByUserIdAsync(patientId);
+            var appointments = await _appointmentRepository.GetCompletedByUserIdAsync(userId);
 
             if (appointments == null)
             {
@@ -124,9 +124,9 @@ namespace HealthCareABApi.Services
             {
                 DetailedResponses.Add(
                     new DetailedResponseDTO
-                {
+                    {
                         Id = appointment.Id,
-                        PatientId = patientId,
+                        PatientId = userId,
                         PatientName = appointment.Patient.Firstname + " " + appointment.Patient.Lastname,
                         CaregiverId = appointment.Caregiver.Id,
                         CaregiverName = appointment.Caregiver.Firstname + " " + appointment.Caregiver.Lastname,
@@ -137,6 +137,24 @@ namespace HealthCareABApi.Services
             }
 
             return DetailedResponses;
+        }
+
+        public async Task<IEnumerable<ScheduledAppointmentsDTO>> GetScheduledAppointmentsAsync(int patientId)
+        {
+            var appointments = await _appointmentRepository.GetScheduledAppointmentsAsync(patientId);
+
+            if (appointments == null || !appointments.Any())
+            {
+                throw new KeyNotFoundException($"{nameof(patientId)} has no scheduled appointments.");
+            }
+
+            return appointments.Select(appointment => new ScheduledAppointmentsDTO
+            {
+                Id = appointment.Id,
+                AppointmentTime = appointment.DateTime,
+                CaregiverName = string.Join(" ", appointment.Caregiver.Firstname, appointment.Caregiver.Lastname),
+                PatientName = string.Join(" ", appointment.Patient.Firstname, appointment.Patient.Lastname)
+            }).ToList();
         }
 
         public async Task UpdateAsync(UpdateAppointmentDTO dto)

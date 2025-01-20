@@ -4,6 +4,7 @@ using HealthCareABApi.Repositories;
 using HealthCareABApi.Repositories.Data;
 using HealthCareABApi.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Principal;
 
 namespace HealthCareABApi.Services
 {
@@ -61,8 +62,9 @@ namespace HealthCareABApi.Services
 
                 var uniqueSlots = availableSlots
                     .GroupBy(s => new { s.StartTime })
-                    .Select(g => new UniqueSlotsDTO
+                    .Select((g, index) => new UniqueSlotsDTO
                     {
+                        Id = index + 1,
                         StartTime = g.Key.StartTime,
                         EndTime = g.First().EndTime, // endtime always the same for each group since we add 30 mins to start. With various endtimes on slots we'd have to group endtime as well.
                         Caregivers = g.Select(s => new CaregiverDTO

@@ -67,7 +67,7 @@ namespace HealthCareAb_Tests
             // Arrange
             var userId = 1;
             SetupUser(userId.ToString());
-            _mockAppointmentRepository.Setup(repo => repo.GetByUserIdAsync(userId)).ReturnsAsync((List<Appointment>)null);
+            _mockAppointmentRepository.Setup(repo => repo.GetCompletedByUserIdAsync(userId)).ReturnsAsync((List<Appointment>)null);
 
             // Act
             var result = await _historyController.GetAppointmentsForHistory();
@@ -83,7 +83,7 @@ namespace HealthCareAb_Tests
             // Arrange
             var userId = 1;
             SetupUser(userId.ToString());
-            _mockAppointmentRepository.Setup(repo => repo.GetByUserIdAsync(userId))
+            _mockAppointmentRepository.Setup(repo => repo.GetCompletedByUserIdAsync(userId))
                 .ThrowsAsync(new Exception());
 
             // Act

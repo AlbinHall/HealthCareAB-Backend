@@ -258,7 +258,7 @@ namespace HealthCareAb_Tests
                 }
             };
 
-            _mockService.Setup(service => service.GetByUserIdAsync(1)).ReturnsAsync(detailedResponseDTOList);
+            _mockService.Setup(service => service.GetCompletedByUserIdAsync(1)).ReturnsAsync(detailedResponseDTOList);
 
             // Act
             var result = await _controller.GetByUserId(1);
@@ -273,7 +273,7 @@ namespace HealthCareAb_Tests
         public async Task GetAppointmentByPatientId_ReturnsNotFoundWhenAppointmentDoesNotExist()
         {
             // Arrange
-            _mockService.Setup(service => service.GetByUserIdAsync(1)).ThrowsAsync(new KeyNotFoundException());
+            _mockService.Setup(service => service.GetCompletedByUserIdAsync(1)).ThrowsAsync(new KeyNotFoundException());
 
             // Act
             var result = await _controller.GetByUserId(1);

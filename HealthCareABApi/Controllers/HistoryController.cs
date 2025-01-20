@@ -41,7 +41,7 @@ namespace HealthCareABApi.Controllers
                     return BadRequest("User Id is not valid");
                 }
 
-                var appointments = await _AppointmentRepository.GetByUserIdAsync(userId);
+                var appointments = await _AppointmentRepository.GetCompletedByUserIdAsync(userId);
 
                 if (appointments == null)
                 {

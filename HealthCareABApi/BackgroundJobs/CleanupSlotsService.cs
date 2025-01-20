@@ -12,6 +12,31 @@ namespace HealthCareABApi.BackgroundJobs
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            // Clean on startup
+            using (var initialScope = _services.CreateScope())
+            {
+                try
+                {
+                    // Kör rensning direkt vid uppstart
+                    var initialDbContext = initialScope.ServiceProvider.GetRequiredService<HealthCareDbContext>();
+                    var currentTime = DateTime.Now;
+
+                    var expiredSlots = initialDbContext.Availability.Where(a => a.EndTime < currentTime).ToList();
+
+                    if (expiredSlots.Any())
+                    {
+                        initialDbContext.RemoveRange(expiredSlots);
+                        await initialDbContext.SaveChangesAsync(stoppingToken);
+
+                        Console.WriteLine($"Deleted {expiredSlots.Count} expired slots on startup - {DateTime.Now:yyyy-MM-dd}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error during initial cleanup: {ex.Message}");
+                }
+            }
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 var currentTime = DateTime.Now;
