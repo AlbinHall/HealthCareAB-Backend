@@ -57,6 +57,10 @@ namespace HealthCareABApi.Repositories.Implementations
         {
             return await _Dbcontext.Feedback.Include(f => f.Appointment).Where(f => f.Appointment.CaregiverId == id).ToListAsync();
         }
+        public async Task<IEnumerable<Feedback>> GetByRatingAsync(int rating)
+        {
+            return await _Dbcontext.Feedback.Where(f => f.Rating == rating).ToListAsync();
+        }
     }
 }
 
