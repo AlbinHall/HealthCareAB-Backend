@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using HealthCareABApi.Models;
 using HealthCareABApi.Repositories.Data;
 using HealthCareABApi.Repositories.Interfaces;
@@ -44,12 +44,12 @@ namespace HealthCareABApi.Repositories.Implementations
                     a.Status == AppointmentStatus.Scheduled);
         }
 
-        public async Task<IEnumerable<Appointment>> GetByUserIdAsync(int patientId)
+        public async Task<IEnumerable<Appointment>> GetCompletedByUserIdAsync(int userId)
         {
             return await _Dbcontext.Appointment
                 .Include(x => x.Caregiver)
                 .Include(x => x.Patient)
-                .Where(x => x.PatientId == patientId && x.Status == AppointmentStatus.Completed)
+                .Where(x => x.PatientId == userId && x.Status == AppointmentStatus.Completed)
                 .ToListAsync();
         }
 
@@ -159,19 +159,19 @@ namespace HealthCareABApi.Repositories.Implementations
                     var body = $@"
                     Hello {appointment.Patient.Firstname},
 
-                    Your appointment have been deleted:
+                      Your appointment have been deleted:
 
-                    Patient Name: {appointment.Patient.Firstname} {appointment.Patient.Lastname}
-                    Appointment Time: {appointment.DateTime.ToString("f")}
-                    Caregiver: {appointment.Caregiver.Firstname} {appointment.Caregiver.Lastname}
+                      Patient Name: {appointment.Patient.Firstname} {appointment.Patient.Lastname}
+                      Appointment Time: {appointment.DateTime.ToString("f")}
+                      Caregiver: {appointment.Caregiver.Firstname} {appointment.Caregiver.Lastname}
 
-                    If you have any questions, please contact us at support@healthCareAbExample.com
+                      If you have any questions, please contact us at support@healthCareAbExample.com
 
-                    The Healthcare AB Team
-                    ";
+                      The Healthcare AB Team
+                      ";
 
-                    await _emailService.SendEmailAsync(appointment.Patient.Email, "Appointment Deleted", body, $"{appointment.Patient.Firstname} {appointment.Patient.Lastname}");
-
+                  await _emailService.SendEmailAsync(appointment.Patient.Email, "Appointment Deleted", body, $"{appointment.Patient.Firstname} {appointment.Patient.Lastname}");
+                
                     var relatedAvailability = await _Dbcontext.Availability
                         .Where(a => a.AppointmentId == id)
                         .FirstOrDefaultAsync();
@@ -200,6 +200,26 @@ namespace HealthCareABApi.Repositories.Implementations
                     await transaction.RollbackAsync();
                     throw new InvalidOperationException("Error deleting appointment", ex);
                 }
+            }
+        }
+
+        public async Task<IEnumerable<Appointment>> GetScheduledAppointmentsAsync(int userId)
+        {
+            try
+            {
+                return await _Dbcontext.Appointment
+                    .Include(a => a.Caregiver)
+                    .Include(a => a.Patient)
+                    .Where(a => a.PatientId == userId && a.Status == AppointmentStatus.Scheduled && a.DateTime > DateTime.Now)
+                    .ToListAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new InvalidOperationException("Database error while fetching scheduled appointments");
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Error fetching scheduled appointments.", ex);
             }
         }
     }
