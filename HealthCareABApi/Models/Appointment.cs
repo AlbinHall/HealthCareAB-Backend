@@ -12,6 +12,7 @@ namespace HealthCareABApi.Models
         public int CaregiverId { get; set; }
         [DeleteBehavior(DeleteBehavior.NoAction)]
         public virtual User Caregiver { get; set; }
+        public string Description { get; set; }
         public DateTime DateTime { get; set; }
         public AppointmentStatus Status { get; set; }
     }

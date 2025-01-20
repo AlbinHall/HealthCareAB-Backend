@@ -37,6 +37,7 @@ namespace HealthCareABApi.Services
                     PatientId = dto.PatientId,
                     CaregiverId = dto.CaregiverId,
                     DateTime = dto.AppointmentTime.ToLocalTime(),
+                    Description = dto.Description,
                     Status = AppointmentStatus.Scheduled
                 };
 
@@ -47,6 +48,7 @@ namespace HealthCareABApi.Services
                     PatientId = appointment.PatientId,
                     CaregiverId = appointment.CaregiverId,
                     AppointmentTime = appointment.DateTime,
+                    Description = appointment.Description,
                     Status = AppointmentStatus.Scheduled
                 };
             }
@@ -85,6 +87,7 @@ namespace HealthCareABApi.Services
                         PatientName = a.Patient.Firstname + " " + a.Patient.Lastname,
                         CaregiverName = a.Caregiver.Firstname + " " + a.Caregiver.Lastname,
                         AppointmentTime = a.DateTime,
+                        Description = a.Description,
                         Status = a.Status
 
                     }).ToList();
@@ -130,6 +133,7 @@ namespace HealthCareABApi.Services
                         PatientName = appointment.Patient.Firstname + " " + appointment.Patient.Lastname,
                         CaregiverId = appointment.Caregiver.Id,
                         CaregiverName = appointment.Caregiver.Firstname + " " + appointment.Caregiver.Lastname,
+                        Description = appointment.Description,
                         AppointmentTime = appointment.DateTime,
                         Status = appointment.Status,
                     }
