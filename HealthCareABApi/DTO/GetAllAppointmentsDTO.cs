@@ -8,6 +8,7 @@ namespace HealthCareABApi.DTO
         public string PatientName { get; set; }
         public string CaregiverName { get; set; }
         public DateTime AppointmentTime { get; set; }
+        public string Description { get; set; }
         public AppointmentStatus Status { get; set; }
     }
 }
