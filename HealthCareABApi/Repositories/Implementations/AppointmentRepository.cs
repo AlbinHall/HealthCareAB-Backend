@@ -1,6 +1,7 @@
 ﻿using System;
 using HealthCareABApi.Models;
 using HealthCareABApi.Repositories.Data;
+using HealthCareABApi.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace HealthCareABApi.Repositories.Implementations
@@ -8,10 +9,12 @@ namespace HealthCareABApi.Repositories.Implementations
     public class AppointmentRepository : IAppointmentRepository
     {
         private readonly HealthCareDbContext _Dbcontext;
+        private readonly IEmailService _emailService;
 
-        public AppointmentRepository(HealthCareDbContext context)
+        public AppointmentRepository(HealthCareDbContext context, IEmailService emailService)
         {
             _Dbcontext = context;
+            _emailService = emailService;
         }
 
         public async Task<IEnumerable<Appointment>> GetAllAsync()
@@ -66,6 +69,9 @@ namespace HealthCareABApi.Repositories.Implementations
                     a.EndTime > appointment.DateTime &&
                     !a.IsBooked);
 
+                var patient = await _Dbcontext.User.Where(x => x.Id == appointment.PatientId).FirstOrDefaultAsync();
+                var careGiver = await _Dbcontext.User.Where(x => x.Id == appointment.CaregiverId).FirstOrDefaultAsync();
+                        
                 if (availability == null)
                 {
                     throw new InvalidOperationException("No available slot for this time.");
@@ -79,6 +85,24 @@ namespace HealthCareABApi.Repositories.Implementations
                 await _Dbcontext.SaveChangesAsync();
                 //await _Dbcontext.Appointment.AddAsync(appointment);
                 //await _Dbcontext.SaveChangesAsync();
+
+                var body = $@"
+                    Hello {appointment.Patient.Firstname},
+
+                    Your appointment has been successfully scheduled:
+
+                    Patient Name: {patient.Firstname} {patient.Lastname}
+                    Appointment Time: {appointment.DateTime.ToString("f")}
+                    Caregiver: {careGiver.Firstname} {careGiver.Lastname}
+
+                    If you have any questions, please contact us at support@healthCareAbExample.com
+
+                    The Healthcare AB Team
+                    ";
+
+
+                await _emailService.SendEmailAsync(patient.Email, "Appointment Booked", body, $"{patient.Firstname} {patient.Lastname}");
+
             }
             catch (DbUpdateException ex)
             {
@@ -92,15 +116,34 @@ namespace HealthCareABApi.Repositories.Implementations
 
         public async Task<bool> UpdateAsync(int id, Appointment appointment)
         {
-            var exist = await _Dbcontext.Appointment.Where(a => a.Id == id).FirstOrDefaultAsync();
+            var exist = await _Dbcontext.Appointment.Where(a => a.Id == id).Include(x => x.Patient).Include(x => x.Caregiver).FirstOrDefaultAsync();
 
             if (exist == null)
             {
                 return false;
             }
 
+
             _Dbcontext.Appointment.Entry(exist).CurrentValues.SetValues(appointment);
             await _Dbcontext.SaveChangesAsync();
+            
+            var body = $@"
+                    Hello {appointment.Patient.Firstname},
+
+                    Your appointment has been successfully Updated:
+
+                    Patient Name: {appointment.Patient.Firstname} {appointment.Patient.Lastname}
+                    Appointment Time: {appointment.DateTime.ToString("f")}
+                    Caregiver: {appointment.Caregiver.Firstname} {appointment.Caregiver.Lastname}
+
+                    If you have any questions, please contact us at support@healthCareAbExample.com
+
+                    The Healthcare AB Team
+                    ";
+
+
+            await _emailService.SendEmailAsync(appointment.Patient.Email, "Appointment updated", body, $"{appointment.Patient.Firstname} {appointment.Patient.Lastname}");
+
             return true;
         }
 
@@ -108,8 +151,25 @@ namespace HealthCareABApi.Repositories.Implementations
         {
             try
             {
+                var appointment = await _Dbcontext.Appointment.Where(x => x.Id == id).Include(x => x.Patient).Include(x => x.Caregiver).FirstOrDefaultAsync();
                 await _Dbcontext.Appointment.Where(a => a.Id == id).ExecuteDeleteAsync();
                 await _Dbcontext.SaveChangesAsync();
+
+                var body = $@"
+                    Hello {appointment.Patient.Firstname},
+
+                    Your appointment have been deleted:
+
+                    Patient Name: {appointment.Patient.Firstname} {appointment.Patient.Lastname}
+                    Appointment Time: {appointment.DateTime.ToString("f")}
+                    Caregiver: {appointment.Caregiver.Firstname} {appointment.Caregiver.Lastname}
+
+                    If you have any questions, please contact us at support@healthCareAbExample.com
+
+                    The Healthcare AB Team
+                    ";
+
+                await _emailService.SendEmailAsync(appointment.Patient.Email, "Appointment Deleted", body, $"{appointment.Patient.Firstname} {appointment.Patient.Lastname}");
             }
             catch (DbUpdateException ex)
             {
