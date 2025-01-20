@@ -10,11 +10,13 @@ namespace HealthCareABApi.Services
     public class AvailabilityService : IAvailabilityService
     {
         private readonly IAvailabilityRepository _availabilityRepository;
+        private readonly IAppointmentRepository _appointmentRepository;
         private readonly HealthCareDbContext _Dbcontext;
 
-        public AvailabilityService(IAvailabilityRepository availabilityRepository, HealthCareDbContext context)
+        public AvailabilityService(IAvailabilityRepository availabilityRepository, HealthCareDbContext context, IAppointmentRepository appointmentRepository)
         {
             _availabilityRepository = availabilityRepository;
+            _appointmentRepository = appointmentRepository;
             _Dbcontext = context;
         }
 
@@ -173,7 +175,7 @@ namespace HealthCareABApi.Services
 
             if (availability.AppointmentId.HasValue)
             {
-                _Dbcontext.Appointment.Remove(availability.Appointment);
+                await _appointmentRepository.DeleteAsync(availability.AppointmentId.Value);
             }
 
             _Dbcontext.Availability.Remove(availability);

@@ -142,20 +142,21 @@ namespace HealthCareABApi.Repositories.Implementations
                     ";
 
 
-            await _emailService.SendEmailAsync(appointment.Patient.Email, "Appointment updated", body, $"{appointment.Patient.Firstname} {appointment.Patient.Lastname}");
+            await _emailService.SendEmailAsync(appointment.Patient.Email, "Appointment Updated", body, $"{appointment.Patient.Firstname} {appointment.Patient.Lastname}");
 
             return true;
         }
 
         public async Task DeleteAsync(int id)
         {
-            try
+            using (var transaction = await _Dbcontext.Database.BeginTransactionAsync())
             {
-                var appointment = await _Dbcontext.Appointment.Where(x => x.Id == id).Include(x => x.Patient).Include(x => x.Caregiver).FirstOrDefaultAsync();
-                await _Dbcontext.Appointment.Where(a => a.Id == id).ExecuteDeleteAsync();
-                await _Dbcontext.SaveChangesAsync();
 
-                var body = $@"
+                try
+                {
+                    var appointment = await _Dbcontext.Appointment.Where(x => x.Id == id).Include(x => x.Patient).Include(x => x.Caregiver).FirstOrDefaultAsync();
+
+                    var body = $@"
                     Hello {appointment.Patient.Firstname},
 
                     Your appointment have been deleted:
@@ -169,15 +170,36 @@ namespace HealthCareABApi.Repositories.Implementations
                     The Healthcare AB Team
                     ";
 
-                await _emailService.SendEmailAsync(appointment.Patient.Email, "Appointment Deleted", body, $"{appointment.Patient.Firstname} {appointment.Patient.Lastname}");
-            }
-            catch (DbUpdateException ex)
-            {
-                throw new InvalidOperationException("Database error while deleting appointment", ex);
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException("Error deleting appointment", ex);
+                    await _emailService.SendEmailAsync(appointment.Patient.Email, "Appointment Deleted", body, $"{appointment.Patient.Firstname} {appointment.Patient.Lastname}");
+
+                    var relatedAvailability = await _Dbcontext.Availability
+                        .Where(a => a.AppointmentId == id)
+                        .FirstOrDefaultAsync();
+
+                    if (relatedAvailability == null)
+                    {
+                        throw new ArgumentNullException("No availability is related to this appointment.");
+                    }
+
+                    relatedAvailability.AppointmentId = null;
+                    relatedAvailability.IsBooked = false;
+                    await _Dbcontext.SaveChangesAsync(); // Need to update and save appointmentId in selected slot before deleting the appointment cuz of FK constraint
+
+                    await _Dbcontext.Appointment.Where(a => a.Id == id).ExecuteDeleteAsync();
+                    await _Dbcontext.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+                }
+                catch (DbUpdateException ex)
+                {
+                    await transaction.RollbackAsync();
+                    throw new InvalidOperationException("Database error while deleting appointment", ex);
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    throw new InvalidOperationException("Error deleting appointment", ex);
+                }
             }
         }
     }
