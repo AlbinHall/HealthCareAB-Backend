@@ -21,7 +21,8 @@ namespace HealthCareABApi.BackgroundJobs
                     var initialDbContext = initialScope.ServiceProvider.GetRequiredService<HealthCareDbContext>();
                     var currentTime = DateTime.Now;
 
-                    var expiredSlots = initialDbContext.Availability.Where(a => a.EndTime < currentTime).ToList();
+                    // Fetch slots without an appointment
+                    var expiredSlots = initialDbContext.Availability.Where(a => a.EndTime < currentTime && a.IsBooked != true).ToList();
 
                     if (expiredSlots.Any())
                     {
